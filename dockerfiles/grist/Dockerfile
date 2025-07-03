@@ -98,7 +98,7 @@ FROM docker.io/gristlabs/gvisor-unprivileged:buster AS sandbox
 ################################################################################
 
 # Now, start preparing final image.
-FROM alpine:3.21.3
+FROM alpine:3.22.0
 
 # Install curl for docker healthchecks, libexpat1 and (libsqlite3-0 maybe we need to put it back) for python3
 # library binary dependencies, and procps for managing gvisor processes.
