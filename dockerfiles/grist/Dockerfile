@@ -24,7 +24,7 @@ RUN \
 ## Javascript build stage
 ################################################################################
 
-FROM node:22.16.0-alpine3.21 AS builder
+FROM node:22.17.0-alpine3.21 AS builder
 
 # Install all node dependencies.
 WORKDIR /grist
