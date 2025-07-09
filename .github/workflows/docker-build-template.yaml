@@ -69,8 +69,8 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           target: ${{ inputs.target }}
           build-args: |
-            ${{ inputs.grist_version != null && format('GRIST_VERSION={}', inputs.grist_version) }}
-            ${{ inputs.build_env != null && format('BUILD_ENV={}', inputs.build_env) }}
+            ${{ inputs.grist_version != null && format('GRIST_VERSION={0}', inputs.grist_version) || null }}
+            ${{ inputs.build_env != null && format('BUILD_ENV={0}', inputs.build_env) || null }}
           # use cache from current branch, as it's most likely the closest, but also main branch for the first branch build
           cache-from: |
             type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:cache-${{ github.ref_name }}

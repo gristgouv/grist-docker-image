@@ -28,4 +28,5 @@ jobs:
     with:
       grist_version: latest
       docker_tag: latest-${{ matrix.build_env }}
+      build_env: ${{ matrix.build_env }}
 
