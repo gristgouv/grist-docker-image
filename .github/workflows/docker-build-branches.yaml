@@ -25,4 +25,5 @@ jobs:
         build_env: [DINUM, ANCT]
     with:
       docker_tag: branch-${{ github.ref_name }}-${{ matrix.build_env }}
+      build_env: ${{ matrix.build_env }}
 
