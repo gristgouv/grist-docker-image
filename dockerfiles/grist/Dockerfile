@@ -1,4 +1,4 @@
-ARG GRIST_VERSION=1.6.1
+ARG GRIST_VERSION=v1.6.1
 
 ################################################################################
 ## The Grist source can be extended. This is a stub that can be overridden
@@ -18,7 +18,7 @@ ARG GRIST_VERSION
 # Clone grist from GRIST_VERSION tag
 WORKDIR /grist-core
 RUN \
-  git clone --depth 1 -b v$GRIST_VERSION https://github.com/gristlabs/grist-core.git .
+  git clone --depth 1 -b $GRIST_VERSION https://github.com/gristlabs/grist-core.git .
 
 ################################################################################
 ## Javascript build stage
@@ -98,7 +98,7 @@ FROM docker.io/gristlabs/gvisor-unprivileged:buster AS sandbox
 ################################################################################
 
 # Now, start preparing final image.
-FROM alpine:3.21.3
+FROM alpine:3.21.3 AS generic
 
 # Install curl for docker healthchecks, libexpat1 and (libsqlite3-0 maybe we need to put it back) for python3
 # library binary dependencies, and procps for managing gvisor processes.
@@ -199,3 +199,34 @@ EXPOSE 8484
 
 ENTRYPOINT ["./sandbox/docker_entrypoint.sh"]
 CMD ["node", "./sandbox/supervisor.mjs"]
+
+FROM generic
+
+ARG LASUITE_VERSION=1.0.2
+ARG LASUITE_ARCHIVE=gouvfr-lasuite-integration-$LASUITE_VERSION.tgz
+ARG BUILD_ENV=DINUM
+
+# La suite's gauffre is expected only in DINUM image
+WORKDIR /grist/static
+RUN if [ "$BUILD_ENV" = "DINUM" ]; then \
+    apk --no-cache add wget && \
+    wget -nv https://github.com/numerique-gouv/lasuite-integration/releases/download/integration-v$LASUITE_VERSION/$LASUITE_ARCHIVE && \
+    apk del wget && \
+    tar -zxvf $LASUITE_ARCHIVE && \
+    # Archive is extracted as "package"
+    # We move it to @gouvfr-lasuite/integration to be complient with
+    # https://integration.lasuite.numerique.gouv.fr/guides/gaufre/
+    mkdir @gouvfr-lasuite && \
+    mv package @gouvfr-lasuite/integration && \
+    rm $LASUITE_ARCHIVE; \
+  fi
+
+COPY ressources/$BUILD_ENV/ /grist/static/
+
+# Set workdir to /grist to be consistent with enpoint and CMD
+# defined in lasuite/grist main images
+WORKDIR /grist
+
+# Variable to force grist to use custom.css and custom.js
+ENV APP_STATIC_INCLUDE_CUSTOM_CSS=true
+ENV GRIST_INCLUDE_CUSTOM_SCRIPT_URL=/v/unknown/custom.js

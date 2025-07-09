@@ -1,0 +1,28 @@
+name: Create and publish a Docker image for branches
+
+on:
+  push:
+    branches: ['*']
+
+permissions:
+  contents: read
+  packages: write
+  attestations: write
+  id-token: write
+
+jobs:
+  docker-build-generic:
+    uses: ./.github/workflows/docker-build-template.yaml
+    with:
+      docker_tag: branch-${{ github.ref_name }}
+      target: generic
+
+  docker-build-custom:
+    uses: ./.github/workflows/docker-build-template.yaml
+    needs: docker-build-generic
+    strategy:
+      matrix:
+        build_env: [DINUM, ANCT]
+    with:
+      docker_tag: branch-${{ github.ref_name }}-${{ matrix.build_env }}
+
