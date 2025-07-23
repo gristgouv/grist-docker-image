@@ -1,0 +1,14 @@
+name: Test creating a Docker image for dependabot PRs
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  docker-build-generic:
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    uses: ./.github/workflows/docker-build-template.yaml
+    with:
+      docker_tag: dependabot
+      target: generic
+
