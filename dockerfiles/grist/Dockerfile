@@ -11,7 +11,7 @@ FROM scratch AS ext
 ################################################################################
 # Get sources from git stage
 ################################################################################
-FROM alpine/git:v2.47.2 AS sources
+FROM alpine/git:2.49.1 AS sources
 
 ARG GRIST_VERSION
 
