@@ -11,4 +11,5 @@ jobs:
     with:
       docker_tag: dependabot
       target: generic
+      push: false
 
