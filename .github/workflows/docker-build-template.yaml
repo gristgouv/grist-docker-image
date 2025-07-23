@@ -16,6 +16,10 @@ on:
         description: Docker tag to create during this action
         required: true
         type: string
+      push:
+        description: Wether to push the resulting docker image tags or not
+        type: boolean
+        default: true
 
 # Defines custom environment variables for the workflow
 env:
@@ -25,13 +29,6 @@ env:
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
-
-    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
-    permissions:
-      contents: read
-      packages: write
-      attestations: write
-      id-token: write
 
     steps:
       -
@@ -64,7 +61,7 @@ jobs:
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
           context: dockerfiles/grist
-          push: true
+          push: ${{ inputs.push }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           target: ${{ inputs.target }}
