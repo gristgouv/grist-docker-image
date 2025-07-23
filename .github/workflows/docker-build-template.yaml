@@ -70,9 +70,9 @@ jobs:
             ${{ inputs.build_env != null && format('BUILD_ENV={0}', inputs.build_env) || null }}
           # use cache from current branch, as it's most likely the closest, but also main branch for the first branch build
           cache-from: |
-            type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:cache-${{ github.ref_name }}
+            ${{ inputs.push && format('type=registry,ref={0}/{1}:cache-{2},mode=max', env.REGISTRY, env.IMAGE_NAME, github.ref_name) || null }}
             type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:cache-main
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:cache-${{ github.ref_name }},mode=max
+          cache-to: ${{ inputs.push && format('type=registry,ref={0}/{1}:cache-{2},mode=max', env.REGISTRY, env.IMAGE_NAME, github.ref_name) || null }}
       -
         name: Generate artifact attestation
         uses: actions/attest-build-provenance@v2
