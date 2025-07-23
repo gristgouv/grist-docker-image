@@ -5,7 +5,7 @@
 ### Pour une nouvelle version de Grist
 
 Instructions à suivre lorsque GristLabs publie une nouvelle version de Grist :
-- Lancer l'action **Update GRIST_VERSION**
+- Lancer [l'action **Update GRIST_VERSION**](https://github.com/gristgouv/grist-docker-image/actions/workflows/autoupdate-grist.yml)
 - Merger la PR créée par l'action
 - Sur la branche `main`, créer un nouveau tag avec le format `x.x.x-1` où `x.x.x` est le numéro de version chez GristLabs sans le préfixe `v`.
 
