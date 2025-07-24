@@ -18,7 +18,7 @@ jobs:
       target: generic
       push_docker_hub: true
     secrets:
-      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      docker_hub_token: ${{ secrets.DOCKERHUB_TOKEN }}
 
   docker-build-custom:
     uses: ./.github/workflows/docker-build-template.yaml
