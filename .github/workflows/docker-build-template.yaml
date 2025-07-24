@@ -20,6 +20,10 @@ on:
         description: Wether to push the resulting docker image tags or not
         type: boolean
         default: true
+      push_docker_hub:
+        description: Wether to push the resulting image to the docker hub too
+        type: boolean
+        default: false
 
 # Defines custom environment variables for the workflow
 env:
@@ -39,18 +43,28 @@ jobs:
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
         run: ./.github/scripts/validate-tag-against-grist-version.py ${{ inputs.docker_tag }} dockerfiles/grist/Dockerfile
       -
-        name: Log in to the Container registry
+        name: Log in to the github Container registry
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       -
+        name: Log in to the docker hub
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        if: ${{ inputs.push_docker_hub }}
+        with:
+          registry: docker.io
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
         name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: |
+            name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},enable=true
+            name=docker.io/${{ vars.DOCKERHUB_USERNAME }}/grist,enable=${{ inputs.push_docker_hub }}
           tags: type=raw,value=${{ inputs.docker_tag }}
       -
         name: Set up Docker Buildx
