@@ -17,7 +17,8 @@ jobs:
       docker_tag: ${{ github.ref_name }}
       target: generic
       push_docker_hub: true
-      docker_hub_token: ${{ secrets.DOCKERHUB_TOKEN }}
+    secrets:
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   docker-build-custom:
     uses: ./.github/workflows/docker-build-template.yaml

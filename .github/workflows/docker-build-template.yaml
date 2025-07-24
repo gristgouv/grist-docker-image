@@ -24,9 +24,6 @@ on:
         description: Wether to push the resulting image to the docker hub too
         type: boolean
         default: false
-      docker_hub_token:
-        description: Token to login to the docker hub
-        type: string
 
 # Defines custom environment variables for the workflow
 env:
@@ -59,7 +56,7 @@ jobs:
         with:
           registry: docker.io
           username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ inputs.docker_hub_token }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
         name: Extract metadata (tags, labels) for Docker
         id: meta
