@@ -5,6 +5,10 @@ on:
     - cron: '0 2 * * *' # Tous les jours à 2h00
   workflow_dispatch: # Déclenchement manuel
 
+permissions:
+  pull-requests: write
+  contents: write
+
 jobs:
   check-and-update-version:
     runs-on: ubuntu-latest
