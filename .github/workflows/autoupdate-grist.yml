@@ -16,7 +16,20 @@ jobs:
       - name: Sync version from grist-core with ours
         id: get_latest_release
         run: |
-          latest_release=$(curl -s https://api.github.com/repos/gristlabs/grist-core/releases/latest | jq -r .name)
+          latest_release=$(
+            # check tags because sometimes they don't create releases
+            curl https://api.github.com/repos/gristlabs/grist-core/git/matching-refs/tags |
+            jq -r '# raw output to avoid quotes around version string
+              [.[] # iterate over tags
+                | {
+                    "ref": .ref, # keep the original refs
+                    "ver": # compute a sortable version
+                      .ref | gsub("[^0-9]+(?<n>[0-9]+)"; "\(.n).") # replace any non-number sequence with a dot
+                      | rtrimstr(".") # remove last dot
+                      | split(".") | [.[]|tonumber] # split by dots and parse numbers, it produces an array of numbers e.g. [1,2] for "refs/tags/v1.2"
+                  }
+              ] | sort_by(.ver) | last # sort by ver which respects numeric sort
+              | .ref | split("/") | last # user last part of the git ref, which is the tag name e.g. v1.1')
           sed -i "s/ARG GRIST_VERSION=.*/ARG GRIST_VERSION=${latest_release}/" dockerfiles/grist/Dockerfile
           echo "title=⬆️(grist): bump image to ${latest_release}" >> $GITHUB_OUTPUT
           echo "body=See the release notes there: https://github.com/gristlabs/grist-core/releases/tag/${latest_release}" >> $GITHUB_OUTPUT
