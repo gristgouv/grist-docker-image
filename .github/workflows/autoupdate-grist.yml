@@ -41,6 +41,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
+          sign-commits: true
           commit-message: "${{ steps.get_latest_release.outputs.title }}\n\n${{ steps.get_latest_release.outputs.body }}"
           title: "${{ steps.get_latest_release.outputs.title }}"
           body: "${{ steps.get_latest_release.outputs.body }}"
