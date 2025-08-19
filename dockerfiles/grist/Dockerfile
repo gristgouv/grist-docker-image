@@ -226,7 +226,3 @@ COPY ressources/$BUILD_ENV/ /grist/static/
 # Set workdir to /grist to be consistent with enpoint and CMD
 # defined in lasuite/grist main images
 WORKDIR /grist
-
-# Variable to force grist to use custom.css and custom.js
-ENV APP_STATIC_INCLUDE_CUSTOM_CSS=true
-ENV GRIST_INCLUDE_CUSTOM_SCRIPT_URL=/v/unknown/custom.js
