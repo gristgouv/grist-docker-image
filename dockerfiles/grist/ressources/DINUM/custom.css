@@ -49,6 +49,14 @@
     --grist-theme-decoration: #d2d2d2;
     --grist-theme-decoration-secondary: #e8e8e8;
     --grist-theme-decoration-tertiary: #d2d2d2;
+    /* make switches use the same color as switches from the DSFR (instead of the lighter blue) */
+    --grist-theme-switch-active-slider: var(--grist-theme-primary-dim);
+  }
+
+  /* when in a table or card, the toggle switch has particular styling rules to handle potential user-selected color,
+  making it a impossible to override only with a CSS variable, we must force a rule */
+  [data-grist-theme="GristLight"] .field_clip .test-toggle-switch {
+    --grist-theme-switch-active-slider: var(--grist-actual-cell-color, var(--grist-theme-primary-dim)) !important;
   }
 
   :root[data-grist-theme="HighContrastLight"] {
