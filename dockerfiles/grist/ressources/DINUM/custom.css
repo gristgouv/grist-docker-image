@@ -51,6 +51,17 @@
     --grist-theme-decoration-tertiary: #d2d2d2;
     /* make switches use the same color as switches from the DSFR (instead of the lighter blue) */
     --grist-theme-switch-active-slider: var(--grist-theme-primary-dim);
+
+    /* make _some_ important borders more pronounced so that they are WCAG compliant by default
+    (no need to do that on the HighContrastLight theme, as they are already WCAG compliant) */
+    --custom-marked-borders: #8F8F8F;
+    --grist-theme-input-border: var(--custom-marked-borders);
+    --grist-theme-app-header-border: var(--custom-marked-borders);
+    --grist-theme-select-button-border: var(--custom-marked-borders);
+    --grist-theme-button-group-border: var(--custom-marked-borders);
+    --grist-theme-highlighted-code-border: var(--custom-marked-borders);
+    --grist-theme-checkbox-border: var(--custom-marked-borders);
+    --grist-theme-page-panels-border: #cfcfcf;
   }
 
   /* when in a table or card, the toggle switch has particular styling rules to handle potential user-selected color,
