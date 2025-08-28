@@ -85,6 +85,18 @@
   /* END Custom tooltip colors */
   /* END light theme-specific overrides */
 
+  /* START Form custom colors to have WCAG compliant combinations */
+  /* Forms don't support themes. They are always loaded with GristLight theme,
+  but don't necessarily consume the same tokens as components in the app
+  and need some specific overrides. */
+
+  /* note: here, we target specific things, as the dark-grey variable is used for other
+  things that inputs and we don't want to change it in that case (ie. sections) */
+  :root[data-grist-form] :is(input, select, textarea, label, .test-form-search-select) {
+    --grist-color-dark-grey: #8F8F8F;
+  }
+  /* END Form custom colors */
+
   /* START dark theme-specific overrides */
   :root[data-grist-theme="GristDark"] {
     --grist-theme-body: #f6f6f6;
