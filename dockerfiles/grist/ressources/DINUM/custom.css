@@ -49,6 +49,25 @@
     --grist-theme-decoration: #d2d2d2;
     --grist-theme-decoration-secondary: #e8e8e8;
     --grist-theme-decoration-tertiary: #d2d2d2;
+    /* make switches use the same color as switches from the DSFR (instead of the lighter blue) */
+    --grist-theme-switch-active-slider: var(--grist-theme-primary-dim);
+
+    /* make _some_ important borders more pronounced so that they are WCAG compliant by default
+    (no need to do that on the HighContrastLight theme, as they are already WCAG compliant) */
+    --custom-marked-borders: #8F8F8F;
+    --grist-theme-input-border: var(--custom-marked-borders);
+    --grist-theme-app-header-border: var(--custom-marked-borders);
+    --grist-theme-select-button-border: var(--custom-marked-borders);
+    --grist-theme-button-group-border: var(--custom-marked-borders);
+    --grist-theme-highlighted-code-border: var(--custom-marked-borders);
+    --grist-theme-checkbox-border: var(--custom-marked-borders);
+    --grist-theme-page-panels-border: #cfcfcf;
+  }
+
+  /* when in a table or card, the toggle switch has particular styling rules to handle potential user-selected color,
+  making it a impossible to override only with a CSS variable, we must force a rule */
+  [data-grist-theme="GristLight"] .field_clip .test-toggle-switch {
+    --grist-theme-switch-active-slider: var(--grist-actual-cell-color, var(--grist-theme-primary-dim)) !important;
   }
 
   :root[data-grist-theme="HighContrastLight"] {
@@ -65,6 +84,18 @@
   }
   /* END Custom tooltip colors */
   /* END light theme-specific overrides */
+
+  /* START Form custom colors to have WCAG compliant combinations */
+  /* Forms don't support themes. They are always loaded with GristLight theme,
+  but don't necessarily consume the same tokens as components in the app
+  and need some specific overrides. */
+
+  /* note: here, we target specific things, as the dark-grey variable is used for other
+  things that inputs and we don't want to change it in that case (ie. sections) */
+  :root[data-grist-form] :is(input, select, textarea, label, .test-form-search-select) {
+    --grist-color-dark-grey: #8F8F8F;
+  }
+  /* END Form custom colors */
 
   /* START dark theme-specific overrides */
   :root[data-grist-theme="GristDark"] {

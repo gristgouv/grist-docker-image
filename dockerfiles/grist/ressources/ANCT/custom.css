@@ -4,3 +4,20 @@
   --grist-theme-logo-bg: #ffffff !important;
   --grist-theme-logo-size: 22px 22px !important;
 }
+
+/* START Form custom colors to have WCAG compliant combinations */
+/* make sure the green grist color is WCAG compliant + make sure input borders are WCAG compliant */
+:root[data-grist-form] {
+  /* apply the grist HighContrastLight theme green colors */
+  --grist-theme-primary: #0f7b51;
+  --grist-theme-primary-muted: #196C47;
+  --grist-theme-primary-dim: #196C47;
+  --grist-theme-secondary: #717178;
+}
+
+/* note: here, we target specific things, as the dark-grey variable is used for other
+things that inputs and we don't want to change it in that case (ie. sections) */
+:root[data-grist-form] :is(input, select, textarea, label, .test-form-search-select) {
+  --grist-color-dark-grey: #8F8F8F;
+}
+/* END Form custom colors */
