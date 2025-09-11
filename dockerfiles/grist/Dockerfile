@@ -1,4 +1,4 @@
-ARG GRIST_VERSION=v1.7.3
+ARG GRIST_VERSION=logs-doc-assignment
 
 ################################################################################
 ## The Grist source can be extended. This is a stub that can be overridden
@@ -18,7 +18,7 @@ ARG GRIST_VERSION
 # Clone grist from GRIST_VERSION tag
 WORKDIR /grist-core
 RUN \
-  git clone --depth 1 -b $GRIST_VERSION https://github.com/gristlabs/grist-core.git .
+  git clone --depth 1 -b $GRIST_VERSION https://github.com/ohemelaar/grist-core.git .
 
 ################################################################################
 ## Javascript build stage
