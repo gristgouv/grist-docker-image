@@ -24,23 +24,25 @@ RUN \
 ## Javascript build stage
 ################################################################################
 
-FROM node:22.17.1-alpine3.21 AS builder
-
-# Install all node dependencies.
-WORKDIR /grist
-COPY --from=sources /grist-core/package.json /grist-core/yarn.lock /grist/
+FROM node:22.17.1-alpine3.22 AS prod-builder
 
 # Add python and build tools needed by gyp compilation in node modules
 RUN \
   apk add --no-cache python3 build-base
 
+# Install all node production dependencies.
+WORKDIR /grist
+COPY --from=sources /grist-core/package.json /grist-core/yarn.lock /grist/
+RUN \
+  yarn install --prod --frozen-lockfile --verbose --network-timeout 600000
+
+FROM prod-builder AS builder
+
 # Create node_modules with devDependencies to be able to build the app
 # Add at global level gyp deps to build sqlite3 for prod
 # then create node_modules_prod that will be the node_modules of final image
 RUN \
-  yarn install --frozen-lockfile --verbose --network-timeout 600000 && \
-  yarn global add --verbose --network-timeout 600000 node-gyp node-pre-gyp node-gyp-build node-gyp-build-optional-packages && \
-  yarn install --prod --frozen-lockfile --modules-folder=/node_modules_prod --verbose --network-timeout 600000
+  yarn install --frozen-lockfile --verbose --network-timeout 600000
 
 # Install any extra node dependencies (at root level, to avoid having to wrestle
 # with merging them).
@@ -73,10 +75,10 @@ RUN \
 ################################################################################
 
 # Fetch python3.11
-FROM python:3.11.11-alpine3.21 AS collector-py3
+FROM python:3.11.13-alpine3.22 AS collector-py3
 COPY --from=sources /grist-core/sandbox/requirements.txt requirements.txt
 RUN \
-  pip3 install --no-cache-dir pip==25.0.1 setuptools==75.8.1 && \
+  pip3 install --no-cache-dir pip==25.2 setuptools==80.9.0 && \
   pip3 install --no-cache-dir -r requirements.txt
 
 ################################################################################
@@ -91,7 +93,36 @@ RUN \
 # If you'd like to use unmodified gvisor, you should be able to just drop
 # in the standard runsc binary and run the container with any extra permissions
 # it needs.
-FROM docker.io/gristlabs/gvisor-unprivileged:buster AS sandbox
+# https://github.com/gristlabs/gvisor/commit/4208b8fe4e19bb7473cee8bec444c7cae6171d8b
+
+# A recipe for building the gvisor runsc sandbox.  Output is a single file.
+
+FROM golang:1.25.1 AS sandbox
+
+# Fetch fork of gvisor supporting an --unprivileged flag.
+# See https://github.com/google/gvisor/issues/4371
+WORKDIR /
+
+RUN \
+  git clone https://github.com/gristlabs/gvisor.git
+
+WORKDIR /gvisor
+
+# Checkout to the wanted commit of the go branch of gvisor.
+# To avoid some complexity we want to build from the go branch rather than with bazel
+# Then cherry pick the fork modifications.
+RUN \
+  git fetch origin bd77833a87a6a58981b1db90a71b961937d74bac && \
+  git checkout bd77833a87a6a58981b1db90a71b961937d74bac && \
+  git cherry-pick -n 4f03d181471cb965f378db4fb5304cb5a9b2843c
+
+RUN \
+  go mod download && \
+  mkdir out && \
+  CGO_ENABLED=0 GO111MODULE=on go build -o out ./...
+
+RUN \
+  strip -s out/runsc
 
 ################################################################################
 ## Run-time stage
@@ -116,7 +147,7 @@ RUN mkdir -p /persist/docs
 
 # Copy node files.
 COPY --from=builder /node_modules /node_modules
-COPY --from=builder /node_modules_prod /grist/node_modules
+COPY --from=prod-builder /grist/node_modules /grist/node_modules
 COPY --from=builder /grist/_build /grist/_build
 COPY --from=builder /grist/static /grist/static-built
 
@@ -132,7 +163,7 @@ RUN \
   ldconfig /etc/ld.so.conf.d
 
 # Copy runsc.
-COPY --from=sandbox /runsc /usr/bin/runsc
+COPY --from=sandbox /gvisor/out/runsc /usr/bin/runsc
 
 # Add files needed for running server.
 COPY --from=sources /grist-core/package.json /grist/package.json
