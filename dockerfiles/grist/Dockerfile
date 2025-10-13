@@ -97,7 +97,7 @@ RUN \
 
 # A recipe for building the gvisor runsc sandbox.  Output is a single file.
 
-FROM golang:1.25.1 AS sandbox
+FROM golang:1.25.2 AS sandbox
 
 # Fetch fork of gvisor supporting an --unprivileged flag.
 # See https://github.com/google/gvisor/issues/4371
