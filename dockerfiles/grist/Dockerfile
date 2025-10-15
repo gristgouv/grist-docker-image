@@ -1,4 +1,4 @@
-ARG GRIST_VERSION=v1.7.4
+ARG GRIST_VERSION=measure-docwk-load-using-system-utils
 
 ################################################################################
 ## The Grist source can be extended. This is a stub that can be overridden
@@ -18,7 +18,7 @@ ARG GRIST_VERSION
 # Clone grist from GRIST_VERSION tag
 WORKDIR /grist-core
 RUN \
-  git clone --depth 1 -b $GRIST_VERSION https://github.com/gristlabs/grist-core.git .
+  git clone --depth 1 -b $GRIST_VERSION https://github.com/betagouv/grist-core.git .
 
 ################################################################################
 ## Javascript build stage
