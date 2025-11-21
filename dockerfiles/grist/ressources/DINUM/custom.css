@@ -1,163 +1,87 @@
 @import url("@gouvfr-lasuite/integration/dist/css/gaufre.css");
 
 @layer grist-custom {
-  /* START light themes-specific overrides */
-  /* there are two light themes: GristLight and HighContrastLight.
-   * Change the main colors for both, but only change the gray shades of the default light theme.
-   */
-  :root[data-grist-appearance="light"] {
-    --grist-theme-bg-color: #fff;
-
-    --grist-theme-primary: #000091;
-    --grist-theme-primary-muted: #2323ff;
-    --grist-theme-primary-dim: #000091;
-    --grist-theme-primary-emphasis: #6a6af4;
-
-    --grist-theme-token-cursor: var(--grist-theme-primary);
-    --grist-theme-token-cursor-inactive: #cacafb;
-    --grist-theme-token-selection: hsla(240, 81.5%, 74.5%, 0.15);
-    --grist-theme-token-selection-opaque: #ececfe;
-    --grist-theme-token-selection-darker-opaque: #e3e3fd;
-    --grist-theme-token-selection-darker: hsla(240, 78.1%, 39.4%, 0.25);
-    --grist-theme-token-selection-darkest: hsla(240, 78.1%, 39.4%, 0.35);
-
-    --grist-theme-token-hover: #cecece;
-    --grist-theme-backdrop: #3a3a3a;
-
-    --grist-theme-error: #ce0500;
-    --grist-theme-error-light: #ff4140;
-    --grist-theme-warning: #b34000;
-    --grist-theme-warning-light: #ff6218;
-    --grist-theme-info: #6798ff;
-    --grist-theme-info-light: #3b87ff;
-    --grist-theme-control-border: 1px solid var(--grist-theme-primary-muted);
-
-    /* Custom inputs tags colors*/
-    --grist-actual-cell-color: #6e6ef2;
-    --accent-color: #6e6ef2;
-  }
-
-  :root[data-grist-theme="GristLight"] {
-    --grist-theme-body: #3a3a3a;
-    --grist-theme-emphasis: #161616;
-    --grist-theme-secondary: #666;
-
-    --grist-theme-bg-default: #fff;
-    --grist-theme-bg-secondary: #f6f6f6;
-    --grist-theme-bg-emphasis: #3a3a3a;
-
-    --grist-theme-decoration: #d2d2d2;
-    --grist-theme-decoration-secondary: #e8e8e8;
-    --grist-theme-decoration-tertiary: #d2d2d2;
-    /* make switches use the same color as switches from the DSFR (instead of the lighter blue) */
-    --grist-theme-switch-active-slider: var(--grist-theme-primary-dim);
-
-    /* make _some_ important borders more pronounced so that they are WCAG compliant by default
-    (no need to do that on the HighContrastLight theme, as they are already WCAG compliant) */
-    --custom-marked-borders: #8F8F8F;
-    --grist-theme-input-border: var(--custom-marked-borders);
-    --grist-theme-app-header-border: var(--custom-marked-borders);
-    --grist-theme-select-button-border: var(--custom-marked-borders);
-    --grist-theme-button-group-border: var(--custom-marked-borders);
-    --grist-theme-highlighted-code-border: var(--custom-marked-borders);
-    --grist-theme-checkbox-border: var(--custom-marked-borders);
-    --grist-theme-page-panels-border: #cfcfcf;
-  }
-
-  /* when in a table or card, the toggle switch has particular styling rules to handle potential user-selected color,
-  making it a impossible to override only with a CSS variable, we must force a rule */
-  [data-grist-theme="GristLight"] .field_clip .test-toggle-switch {
-    --grist-theme-switch-active-slider: var(--grist-actual-cell-color, var(--grist-theme-primary-dim)) !important;
-  }
-
-  :root[data-grist-theme="HighContrastLight"] {
-    --grist-theme-cell-zebra-bg: #eee;
-  }
-
-  /* START Custom tooltip colors */
-  [data-grist-appearance="light"] .test-tooltip {
-    background-color: rgba(255, 255, 255, 0.8) !important;
-    color: #666666 !important;
-  }
-  [data-grist-appearance="light"].test-tooltip-close [style*=CrossSmall]{
-    background-color: #929292 !important;
-  }
-  /* END Custom tooltip colors */
-  /* END light theme-specific overrides */
-
-  /* START Form custom colors to have WCAG compliant combinations */
-  /* Forms don't support themes. They are always loaded with GristLight theme,
-  but don't necessarily consume the same tokens as components in the app
-  and need some specific overrides. */
-
-  /* note: here, we target specific things, as the dark-grey variable is used for other
-  things that inputs and we don't want to change it in that case (ie. sections) */
-  :root[data-grist-form] :is(input, select, textarea, label, .test-form-search-select) {
-    --grist-color-dark-grey: #8F8F8F;
-  }
-  /* END Form custom colors */
-
-  /* START dark theme-specific overrides */
-  :root[data-grist-theme="GristDark"] {
-    --grist-theme-body: #f6f6f6;
-    --grist-theme-emphasis: #fff;
-    --grist-theme-secondary: #a2a2a2;
-
-    --grist-theme-bg: #161616;
-    --grist-theme-bg-color: #161616;
-    --grist-theme-bg-default: #161616;
-    --grist-theme-bg-secondary: #242424;
-    --grist-theme-bg-emphasis: #5b5b5b;
-
-    --grist-theme-decoration: #7b7b7b;
-    --grist-theme-decoration-secondary: #4b4b4b;
-    --grist-theme-decoration-tertiary: #3b3b3b;
-
-    --grist-theme-primary: #9898f8;
-    --grist-theme-primary-muted: #b1b1f9;
-    --grist-theme-primary-dim: #8585f6;
-    --grist-theme-primary-emphasis: #c6c6fb;
-    --grist-theme-control-primary-fg: #000091;
-    --weaseljs-selected-color: #000091;
-    --grist-theme-menu-item-selected-fg: #000091;
-
-    --grist-theme-token-cursor: var(--grist-theme-primary);
-    --grist-theme-token-cursor-inactive: #cacafb;
-    --grist-theme-token-selection: hsla(240, 81.5%, 74.5%, 0.15);
-    --grist-theme-token-selection-opaque: #ececfe;
-    --grist-theme-token-selection-darker-opaque: #e3e3fd;
-    --grist-theme-token-selection-darker: hsla(240, 78.1%, 39.4%, 0.25);
-    --grist-theme-token-selection-darkest: hsla(240, 78.1%, 39.4%, 0.35);
-
-    --grist-theme-token-hover: #666;
-    --grist-theme-backdrop: #3a3a3a;
-
-    --grist-theme-error: #ff5655;
-    --grist-theme-error-light: #ffa6a6;
-    --grist-theme-warning: #fc5d00;
-    --grist-theme-warning-light: #ffa595;
-    --grist-theme-info: #0078f3;
-    --grist-theme-info-light: #518fff;
-    --grist-theme-control-border: 1px solid var(--grist-theme-primary-muted);
-
-    /* Custom inputs tags colors*/
-    --grist-actual-cell-color: #6e6ef2;
-    --accent-color: #6e6ef2;
-
-    /* Manual overrides of hard-coded color strings of original GristDark theme */
-    --grist-theme-add-new-circle-bg: var(--grist-theme-primary);
-    --grist-theme-add-new-circle-fg: var(--grist-theme-control-primary-fg);
-    --grist-theme-importer-active-file-bg: var(--grist-theme-primary-muted);
-    --grist-theme-toast-control-fg: var(--grist-theme-primary);
-    --grist-theme-right-panel-tab-selected-icon: var(--grist-theme-primary);
-    --grist-theme-right-panel-tab-button-hover-bg: var(--grist-theme-primary-muted);
-    --grist-theme-choice-token-bg: var(--grist-theme-bg-emphasis);
-    --grist-theme-cell-zebra-bg: #303030;
-  }
-  /* END dark theme-specific overrides */
-
-  /* START common overrides */
   :root {
+    /* colors from the La Suite UI Kit. names match names in Figma.
+    Example: --uikit-gray-850 is the figma variable Gray/850.
+
+    Notes: we directly use the primitives instead of the ui kit semantic tokens. The ui kit semantic tokens often don't really
+    match existing tokens in Grist depending on the light/dark appearance, so it would this code quite hard to understand. */
+    --uikit-black-100: #181b24;
+
+    --uikit-gray-025: #F6F8F9;
+    --uikit-gray-050: #EEF1F4;
+    --uikit-gray-100: #DFE2EA;
+    --uikit-gray-150: #CFD5DE;
+    --uikit-gray-250: #B2B9C7;
+    --uikit-gray-400: #8891A4;
+    --uikit-gray-450: #7B8498;
+    --uikit-gray-500: #6D778C;
+    --uikit-gray-550: #626A80;
+    --uikit-gray-600: #555E74;
+    --uikit-gray-650: #4A5267;
+    --uikit-gray-700: #3F4759;
+    --uikit-gray-750: #363B4C;
+    --uikit-gray-850: #222631;
+    --uikit-gray-900: #181B24;
+    --uikit-gray-950: #0F1117;
+
+    --uikit-brand-050: #EDF0FF;
+    --uikit-brand-150: #C8D3FF;
+    --uikit-brand-250: #a2b6ff;
+    --uikit-brand-400: #6C89FE;
+    --uikit-brand-550: #3E5DE7;
+    --uikit-brand-600: #304DDF;
+    --uikit-brand-650: #2845C1;
+    --uikit-brand-700: #223E9E;
+    --uikit-brand-750: #1F367D;
+    --uikit-brand-800: #1B2E5F;
+    --uikit-brand-850: #172446;
+    --uikit-brand-900: #121B30;
+
+    --uikit-error-100: #FFDAD7;
+    --uikit-error-450: #F63A45;
+    --uikit-error-500: #E32C39;
+    --uikit-error-550: #CF202D;
+    --uikit-error-600: #BD0F23;
+
+    --uikit-warning-400: #D7790C;
+    --uikit-warning-550: #A75400;
+
+    --uikit-success-100: #BAEECF;
+    --uikit-success-500: #40836F;
+    --uikit-success-600: #2B695A;
+
+    --uikit-info-400: #5092E7;
+    --uikit-info-550: #2F6ABB;
+
+    /* common theme vars that are applied to all themes */
+    --grist-theme-very-light: var(--uikit-gray-050); /* text that is always light, whatever the current appearance (light or dark theme) */
+    --grist-theme-primary: var(--uikit-brand-550); /* main accent color used mostly on interactive elements */
+    --grist-theme-primary-muted: var(--uikit-brand-650); /* alternative primary color, mostly used on hover effects */
+    --grist-theme-primary-dim: var(--uikit-brand-700); /* dimmer primary color, rarely used */
+    --grist-theme-primary-emphasis: var(--uikit-brand-400); /* more pronounced primary color variant, rarely used  */
+    --grist-theme-primary-translucent: #3E5DE755;
+    --grist-theme-control-primary-fg: var(--uikit-brand-050); /* foreground color for primary control elements */
+    --grist-theme-token-cursor: var(--grist-theme-primary); /* cursor color in widgets */
+    --grist-theme-error: var(--uikit-error-550);
+    --grist-theme-text-error: var(--grist-theme-error);
+    --grist-theme-error-light: var(--uikit-error-450);
+    --grist-theme-warning: var(--uikit-warning-550);
+    --grist-theme-warning-light: var(--uikit-warning-400);
+    --grist-theme-info: var(--uikit-info-550);
+    --grist-theme-info-light: var(--uikit-info-400);
+    --grist-theme-control-border: 1px solid var(--grist-theme-primary-muted);
+    /* Custom inputs tags colors (like switch inputs in cells) */
+    --custom-control-bg: var(--grist-theme-primary);
+    --grist-actual-cell-color: var(--custom-control-bg);
+    --accent-color: var(--custom-control-bg);
+    --grist-theme-switch-active-slider: var(--custom-control-bg);
+    --custom-allow-bg: var(--uikit-success-100);
+    --custom-allow-fg: var(--uikit-success-600);
+    --custom-deny-bg: var(--uikit-error-100);
+    --custom-deny-fg: var(--uikit-error-600);
+
     /* logo */
     --icon-GristLogo: url("ui-icons/Logo/logo.svg");
     --grist-theme-logo-bg: #ffffff;
@@ -195,16 +119,38 @@
   }
   /* END logo beta at grist ressources position */
 
+  /* START Custom toggle switch colors */
+  /* When in a table or card, the toggle switch has particular styling rules to handle potential user-selected color,
+  making it a impossible to override only with a CSS variable, we must force a rule */
+  .field_clip .test-toggle-switch {
+    --grist-theme-switch-active-slider: var(--grist-actual-cell-color, var(--custom-control-bg)) !important;
+  }
+  /* END Custom toggle switch colors */
+
+  /* START Custom tooltip colors */
+  .test-tooltip {
+    background-color: var(--custom-tooltip-bg) !important;
+    color: var(--custom-tooltip-fg) !important;
+    border: 1px solid var(--custom-tooltip-border) !important;
+    box-shadow: 0 1px 5.4px 0 rgba(0, 0, 0, 0.15) !important;
+  }
+  .test-tooltip-close [style*=CrossSmall]{
+    background-color: var(--custom-tooltip-fg) !important;
+  }
+  /* END Custom tooltip colors */
+
   /* START Custom ACL colors */
   .test-rule-permissions [class*=deny] {
-    background-color: #e1000f !important;
-    background-image: linear-gradient(-45deg, #e1000f 14px, white 15px 16px, #e1000f 16px) !important;
-    border-color: #e1000f !important;
+    background-color: var(--custom-deny-bg) !important;
+    background-image: linear-gradient(-45deg, var(--custom-deny-bg) 14px, var(--custom-deny-fg) 15px 16px, var(--custom-deny-bg) 16px) !important;
+    border-color: var(--custom-deny-bg) !important;
+    color: var(--custom-deny-fg) !important;
   }
 
   .test-rule-permissions [class*=allow] {
-    background-color: #27a658 !important;
-    border-color: #27a658 !important;
+    background-color: var(--custom-allow-bg) !important;
+    border-color: var(--custom-allow-bg) !important;
+    color: var(--custom-allow-fg) !important;
   }
   /* END Custom ACL colors */
 
@@ -242,5 +188,170 @@
     filter: hue-rotate(93deg) saturate(20) !important;
   }
   /* END Custom home page images hue */
+
   /* END common overrides */
+
+  /* START Form custom colors */
+
+  /* We do this to have WCAG compliant color combinations */
+  /* Forms don't support themes. They are always loaded with GristLight theme,
+  but don't necessarily consume the same tokens as components in the app
+  and need some specific overrides. */
+  /* Note: here, we target specific things, as the dark-grey variable is used for other
+  things that inputs and we don't want to change it in that case (ie. sections) */
+  :root[data-grist-form] :is(input, select, textarea, label, .test-form-search-select) {
+    --grist-color-dark-grey: var(--uikit-gray-400);
+  }
+
+  /* END Form custom colors */
+
+  /* Light theme overrides (both GristLight and HighContrastLight themes) to match UI kit colors */
+  :root[data-grist-appearance="light"] {
+    --grist-theme-bg-color: #fff;
+    --grist-theme-body: var(--uikit-gray-850); /* main body text */
+    --grist-theme-emphasis: var(--uikit-gray-950); /* pronounced text */
+    --grist-theme-secondary: var(--uikit-gray-600); /* secondary, less visually pronounced text */
+    --grist-theme-text-medium: var(--grist-theme-secondary);
+
+    --grist-theme-bg-secondary: var(--uikit-gray-025); /* bg color mostly used on panels */
+    --grist-theme-bg-tertiary: #181b240f; /* transparent bg, mostly used on hover effects (transparent ui kit black) */
+    --grist-theme-bg-emphasis: var(--uikit-gray-850); /* pronounced bg color, mostly used on selected items */
+
+    --grist-theme-decoration: var(--uikit-gray-150); /* main decoration color, mostly used on borders */
+    --grist-theme-decoration-secondary: var(--uikit-gray-050); /* less pronounced decoration color */
+    --grist-theme-decoration-tertiary: var(--grist-theme-decoration);
+    --grist-theme-page-panels-border: var(--grist-theme-decoration);
+    --grist-theme-right-panel-tab-border: var(--grist-theme-decoration);
+
+    --grist-theme-token-cursor-inactive: var(--uikit-brand-150);
+    --grist-theme-token-hover: var(--uikit-gray-150); /* non-transparent hover effect color, rarely used */
+
+    /* these are here because the theme tokens are not 100% clean and some specific parts of the UI
+    still have hard-coded colors in the theme files, mostly some gray shades. We need to update them manually for now.
+    You can see all hard-coded colors in the theme files (GristLight.ts, GristDark.ts, etc.). */
+    --grist-theme-attachments-cell-icon-bg: var(--uikit-gray-100);
+    --grist-control-bg: var(--uikit-gray-600); /* control-bg is used for the attachment icon FG, meaning the attachment clip icon color itself, not its background color */
+    --grist-theme-attachments-cell-icon-hover-bg: var(--grist-theme-token-hover);
+    --grist-theme-table-header-selected-bg: var(--grist-theme-selection-header);
+    --grist-theme-table-header-border: var(--grist-theme-decoration);
+    --grist-theme-card-form-border: var(--grist-theme-decoration);
+    --grist-theme-right-panel-field-settings-button-bg: var(--grist-theme-decoration);
+    --grist-theme-document-history-table-border: var(--grist-theme-decoration);
+    --grist-theme-ace-autocomplete-border: var(--grist-theme-decoration);
+    --grist-theme-formula-icon: var(--grist-theme-decoration);
+    --grist-theme-right-panel-subtab-fg: var(--uikit-gray-600);
+
+    --grist-theme-token-selection: #3e5de726; /* transparent background of selected cells */
+    --grist-theme-token-selection-opaque: var(--uikit-brand-050);
+    --grist-theme-token-selection-darker-opaque: #e6eaff; /* slightly darker version of selection-opaque */
+    --grist-theme-token-selection-darker: #3e5de740;
+    --grist-theme-token-selection-darkest: #3e5de759;
+    --grist-theme-backdrop: #222631e5; /* transparent modal backdrop bg color */
+
+    --grist-theme-control-disabled-bg: var(--uikit-gray-500);
+    --grist-theme-checkbox-disabled-bg: var(--uikit-gray-150);
+
+    --custom-marked-borders: var(--uikit-gray-400); /* Note: this is important to have a color that matches a 3:1 contrast ratio with common bg colors (white and panel bg). */
+    /* make _some_ important borders more pronounced so that they are WCAG compliant by default, basically all form input borders */
+    --grist-theme-switch-inactive-pill: var(--custom-marked-borders);
+    --grist-theme-input-border: var(--custom-marked-borders);
+    --grist-theme-app-header-border: var(--custom-marked-borders);
+    --grist-theme-select-button-border: var(--custom-marked-borders);
+    --grist-theme-button-group-border: var(--custom-marked-borders);
+    --grist-theme-highlighted-code-border: var(--custom-marked-borders);
+    --grist-theme-checkbox-border: var(--custom-marked-borders);
+    --grist-theme-access-rules-formula-editor-border-hover: var(--custom-marked-borders);
+    --grist-theme-app-header-border-hover: var(--custom-marked-borders);
+    --grist-theme-cell-zebra-bg: var(--uikit-gray-025);
+
+    --custom-tooltip-bg: var(--uikit-gray-050);
+    --custom-tooltip-border: var(--uikit-gray-150);
+    --custom-tooltip-fg: var(--uikit-gray-650);
+  }
+
+  /* for the high contrast theme, make the primary color and a few borders/tokens more contrasted,
+  and adapt a few specific tokens */
+  :root[data-grist-theme="HighContrastLight"] {
+    --grist-theme-body: #000;
+    --grist-theme-secondary: var(--uikit-gray-700);
+    --grist-theme-right-panel-subtab-fg: var(--grist-theme-secondary);
+    --grist-theme-primary: var(--uikit-brand-700);
+    --grist-theme-primary-muted: var(--uikit-brand-800);
+    --grist-theme-control-primary-fg: #fff;
+    --grist-theme-token-hover: #000;
+    --uikit-border-semantic-neutral-tertiary: var(--uikit-gray-400);
+    --uikit-background-semantic-overlay-primary-hover: #181b2421;
+
+    --custom-marked-borders: var(--uikit-gray-650);
+    --grist-theme-decoration: var(--uikit-gray-400);
+    --grist-theme-decoration-secondary: var(--uikit-gray-250);
+    --grist-theme-decoration-tertiary: var(--uikit-gray-100);
+    --grist-theme-choice-token-bg: var(--uikit-gray-150);
+    --grist-theme-table-header-border: var(--uikit-gray-700);
+    --grist-theme-checkbox-disabled-bg: var(--uikit-gray-250);
+    --grist-theme-right-panel-field-settings-button-bg: var(--grist-theme-decoration-tertiary);
+    --grist-theme-left-panel-page-options-hover-bg: #fff;
+    --grist-theme-cell-zebra-bg: #E6E9F0;
+  }
+
+  :root[data-grist-theme="GristDark"] {
+    --grist-theme-body: var(--uikit-gray-050);
+    --grist-theme-emphasis: #fff;
+    --grist-theme-secondary: var(--uikit-gray-100);
+
+    --grist-theme-bg: var(--uikit-gray-900);
+    --grist-theme-bg-color: var(--uikit-gray-900);
+    --grist-theme-bg-default: var(--uikit-gray-900);
+    --grist-theme-bg-secondary: var(--uikit-gray-850);
+    --grist-theme-bg-emphasis: var(--uikit-gray-600);
+
+    --grist-theme-decoration: var(--uikit-gray-450);
+    --grist-theme-decoration-secondary: var(--uikit-gray-650);
+    --grist-theme-decoration-tertiary: var(--uikit-gray-700);
+
+    --grist-theme-primary: var(--uikit-brand-250);
+    --grist-theme-primary-dim: var(--uikit-brand-600);
+    --grist-theme-control-primary-bg: var(--uikit-brand-650);
+    --grist-theme-control-border: 1px solid var(--grist-theme-primary);
+
+    --grist-theme-token-cursor: var(--uikit-brand-400);
+    --grist-theme-token-cursor-inactive: #cacafb;
+    --grist-theme-token-selection: hsla(240, 81.5%, 74.5%, 0.15);
+    --grist-theme-token-selection-opaque: #ececfe;
+    --grist-theme-token-selection-darker-opaque: #e3e3fd;
+    --grist-theme-token-selection-darker: hsla(240, 78.1%, 39.4%, 0.25);
+    --grist-theme-token-selection-darkest: hsla(240, 78.1%, 39.4%, 0.35);
+    --grist-theme-primary-translucent: #a2b6ff8d;
+
+    --grist-theme-token-hover: #666;
+    --grist-theme-backdrop: #3a3a3a;
+    --grist-theme-error: var(--uikit-error-450);
+
+    --custom-control-bg: var(--uikit-brand-250);
+    --custom-tooltip-bg: var(--uikit-gray-750);
+    --custom-tooltip-border: var(--uikit-gray-700);
+    --custom-tooltip-fg: var(--uikit-gray-250);
+
+    /* Manual overrides of hard-coded color strings of original GristDark theme */
+    --grist-theme-app-header-border: var(--grist-theme-decoration);
+    --grist-theme-add-new-circle-fg: var(--grist-theme-control-primary-fg);
+    --grist-theme-add-new-circle-bg: var(--uikit-brand-550);
+    --grist-theme-add-new-circle-hover-bg: var(--uikit-brand-750);
+    --grist-theme-importer-active-file-bg: var(--grist-theme-primary-muted);
+    --grist-theme-toast-control-fg: var(--grist-theme-primary);
+    --grist-theme-right-panel-tab-selected-icon: var(--grist-theme-primary);
+    --grist-theme-right-panel-tab-button-hover-bg: var(--grist-theme-primary-muted);
+    --grist-theme-choice-token-bg: var(--grist-theme-bg-emphasis);
+    --grist-theme-cell-zebra-bg: #303030;
+    --grist-theme-switch-inactive-pill: var(--uikit-gray-250);
+    --grist-theme-breadcrumbs-tag-bg: var(--grist-theme-decoration-secondary);
+    --grist-theme-button-group-selected-bg: var(--uikit-brand-750);
+    --grist-theme-widget-active-border: var(--grist-theme-primary);
+  }
+
+  [data-grist-theme="GristDark"] input[type="checkbox"] {
+    --grist-theme-control-primary-fg: #2c3245;
+    --grist-theme-control-primary-bg: var(--grist-theme-primary);
+  }
 }
+
