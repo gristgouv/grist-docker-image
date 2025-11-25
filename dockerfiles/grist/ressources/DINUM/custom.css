@@ -356,6 +356,7 @@
     --grist-theme-add-new-circle-hover-bg: var(--uikit-brand-750);
     --grist-theme-importer-active-file-bg: var(--grist-theme-primary-muted);
     --grist-theme-toast-control-fg: var(--grist-theme-primary);
+    --grist-theme-left-panel-page-options-selected-hover-bg: var(--uikit-gray-450);
     --grist-theme-right-panel-tab-selected-icon: var(--grist-theme-primary);
     --grist-theme-right-panel-tab-button-hover-bg: var(--grist-theme-primary-muted);
     --grist-theme-choice-token-bg: var(--grist-theme-bg-emphasis);
