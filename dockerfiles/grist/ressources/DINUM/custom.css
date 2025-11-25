@@ -91,9 +91,9 @@
 
   /* START loading screen logo */
   .grist-logo {
-    --color-logo-row: #E1000F;   /* Red */
-    --color-logo-col: #000091;   /* Blue */
-    --color-logo-cell: #D9D9D9;  /* Gray */
+    --color-logo-row: #c83f49;
+    --color-logo-col: #2845c1;
+    --color-logo-cell: #2845c1;
     background: #fff !important;
     border-radius: 22px !important;
     padding: 20px 24px !important;
