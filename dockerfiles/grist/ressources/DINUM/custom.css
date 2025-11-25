@@ -349,6 +349,8 @@
     --custom-tooltip-border: var(--uikit-gray-700);
     --custom-tooltip-fg: var(--uikit-gray-250);
 
+    --icon-GristLogo: url("ui-icons/Logo/logo-dark.svg");
+
     /* Manual overrides of hard-coded color strings of original GristDark theme */
     --grist-theme-app-header-border: var(--grist-theme-decoration);
     --grist-theme-add-new-circle-fg: var(--grist-theme-control-primary-fg);
