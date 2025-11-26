@@ -1,4 +1,4 @@
-ARG GRIST_VERSION=v1.7.7
+ARG GRIST_VERSION=v1.7.8
 
 ################################################################################
 ## The Grist source can be extended. This is a stub that can be overridden
