@@ -249,6 +249,7 @@
     --grist-theme-attachments-cell-icon-bg: var(--uikit-gray-100);
     --grist-control-bg: var(--uikit-gray-600); /* control-bg is used for the attachment icon FG, meaning the attachment clip icon color itself, not its background color */
     --grist-theme-attachments-cell-icon-hover-bg: var(--grist-theme-token-hover);
+    --grist-theme-selection-header: var(--uikit-gray-100);
     --grist-theme-table-header-selected-bg: var(--grist-theme-selection-header);
     --grist-theme-table-header-border: var(--grist-theme-decoration);
     --grist-theme-card-form-border: var(--grist-theme-decoration);
