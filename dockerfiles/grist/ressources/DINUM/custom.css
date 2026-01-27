@@ -231,7 +231,7 @@
     --grist-theme-text-medium: var(--grist-theme-secondary);
 
     --grist-theme-bg-secondary: var(--uikit-gray-025); /* bg color mostly used on panels */
-    --grist-theme-bg-tertiary: #181b240f; /* transparent bg, mostly used on hover effects (transparent ui kit black) */
+    --grist-theme-bg-tertiary: #181b241a; /* transparent bg, mostly used on hover effects (transparent ui kit black) */
     --grist-theme-bg-emphasis: var(--uikit-gray-850); /* pronounced bg color, mostly used on selected items */
 
     --grist-theme-decoration: var(--uikit-gray-150); /* main decoration color, mostly used on borders */
@@ -249,8 +249,11 @@
     --grist-theme-attachments-cell-icon-bg: var(--uikit-gray-100);
     --grist-control-bg: var(--uikit-gray-600); /* control-bg is used for the attachment icon FG, meaning the attachment clip icon color itself, not its background color */
     --grist-theme-attachments-cell-icon-hover-bg: var(--grist-theme-token-hover);
-    --grist-theme-selection-header: var(--uikit-gray-100);
-    --grist-theme-table-header-selected-bg: var(--grist-theme-selection-header);
+    /* this below matches the result of the transparent shade --grist-theme-selection-header on a default gray column header,
+       so that the selected column header and selected row header look the same.
+       We don't want to simply reuse --grist-theme-selection-header here (the one used for column headers),
+       because we need an opaque color for the row header, not a transparent one (because of overflow scrolling on mobile). */
+    --grist-theme-table-header-selected-bg: #dfe2e4;
     --grist-theme-table-header-border: var(--grist-theme-decoration);
     --grist-theme-card-form-border: var(--grist-theme-decoration);
     --grist-theme-right-panel-field-settings-button-bg: var(--grist-theme-decoration);
@@ -305,6 +308,10 @@
     --grist-theme-decoration-secondary: var(--uikit-gray-250);
     --grist-theme-decoration-tertiary: var(--uikit-gray-100);
     --grist-theme-choice-token-bg: var(--uikit-gray-150);
+    /* this below kinda shows the default value is wrong in the HighContrastLight theme, we should fix it in grist-core.
+       In the meantime, we override it. We need a transparent value here, as it is used for the column header bg that can have
+       user-defined background and text colors. */
+    --grist-theme-selection-header: var(--grist-theme-bg-tertiary);
     --grist-theme-table-header-border: var(--uikit-gray-700);
     --grist-theme-checkbox-disabled-bg: var(--uikit-gray-250);
     --grist-theme-right-panel-field-settings-button-bg: var(--grist-theme-decoration-tertiary);
