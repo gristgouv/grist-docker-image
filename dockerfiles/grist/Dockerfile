@@ -75,7 +75,7 @@ RUN \
 ################################################################################
 
 # Fetch python3.11
-FROM python:3.11.14-alpine3.22 AS collector-py3
+FROM python:3.11-alpine3.22 AS collector-py3
 COPY --from=sources /grist-core/sandbox/requirements.txt requirements.txt
 RUN \
   pip3 install --no-cache-dir pip==25.2 setuptools==80.9.0 && \
