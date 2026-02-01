@@ -1,4 +1,5 @@
 ARG GRIST_VERSION=v1.7.10
+ARG ALPINE_VERSION=3.22
 
 ################################################################################
 ## The Grist source can be extended. This is a stub that can be overridden
@@ -24,7 +25,7 @@ RUN \
 ## Javascript build stage
 ################################################################################
 
-FROM node:22-alpine3.22 AS prod-builder
+FROM node:22-alpine${ALPINE_VERSION} AS prod-builder
 
 # Add python and build tools needed by gyp compilation in node modules
 RUN \
@@ -75,7 +76,7 @@ RUN \
 ################################################################################
 
 # Fetch python3.11
-FROM python:3.11-alpine3.22 AS collector-py3
+FROM python:3.11-alpine${ALPINE_VERSION} AS collector-py3
 COPY --from=sources /grist-core/sandbox/requirements.txt requirements.txt
 RUN \
   pip3 install --no-cache-dir pip==25.2 setuptools==80.9.0 && \
@@ -102,7 +103,7 @@ FROM docker.io/gristlabs/gvisor-unprivileged:buster AS sandbox
 ################################################################################
 
 # Now, start preparing final image.
-FROM alpine:3.22.2 AS generic
+FROM alpine:${ALPINE_VERSION} AS generic
 
 # Install curl for docker healthchecks, libexpat1 and (libsqlite3-0 maybe we need to put it back) for python3
 # library binary dependencies, and procps for managing gvisor processes.
