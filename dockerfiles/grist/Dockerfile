@@ -24,7 +24,7 @@ RUN \
 ## Javascript build stage
 ################################################################################
 
-FROM node:22.21.1-alpine3.22 AS prod-builder
+FROM node:25.5.0-alpine3.22 AS prod-builder
 
 # Add python and build tools needed by gyp compilation in node modules
 RUN \
