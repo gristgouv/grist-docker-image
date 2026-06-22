@@ -1,0 +1,26 @@
+name: Create and publish a Docker image for tags
+
+on:
+  workflow_dispatch:
+    inputs:
+      imageTag:
+        description: 'grist docker image tag'
+        required: true
+
+permissions:
+  contents: read
+  packages: write
+  attestations: write
+  id-token: write
+
+jobs:
+  docker-build-custom:
+    uses: ./.github/workflows/docker-build-template.yaml
+    needs: docker-build-generic
+    strategy:
+      matrix:
+        build_env: [GVISOR]
+    with:
+      docker_tag: ${{ github.event.inputs.imageTag }}-${{ matrix.build_env }}
+      build_env: ${{ matrix.build_env }}
+      dockerfile: dockerfiles/grist/Dockerfile.gvisor
