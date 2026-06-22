@@ -1,4 +1,4 @@
-name: Create and publish a Docker image for tags
+name: Create and publish grist with newer gvisor image
 
 on:
   workflow_dispatch:
