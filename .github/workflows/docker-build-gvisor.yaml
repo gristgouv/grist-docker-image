@@ -14,7 +14,7 @@ permissions:
   id-token: write
 
 jobs:
-  docker-build-custom:
+  docker-build-gvisor:
     uses: ./.github/workflows/docker-build-template.yaml
     needs: docker-build-generic
     strategy:
