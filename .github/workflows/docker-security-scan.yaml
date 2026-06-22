@@ -1,0 +1,50 @@
+name: Security scan Docker image
+
+on:
+  registry_package:
+    types:
+      - published
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Grist image tag to scan (e.g. 1.7.15-1)'
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    # Skip cache- tags pushed by buildx and any non-grist package published in the org
+    if: github.event_name == 'workflow_dispatch' || (github.event.registry_package.name == 'grist' && !startsWith(github.event.registry_package.package_version.container_metadata.tag.name, 'cache-'))
+    env:
+      GRIST_TAG: ${{ inputs.image_tag || github.event.registry_package.package_version.container_metadata.tag.name }}
+    steps:
+    - name: Run Trivy vulnerability scanner (table for logs)
+      uses: aquasecurity/trivy-action@v0.36.0
+      with:
+        image-ref: ghcr.io/gristgouv/grist:${{ env.GRIST_TAG }}
+        format: 'table'
+        exit-code: '0'
+        vuln-type: 'os,library'
+        severity: 'CRITICAL,HIGH'
+
+    - name: Run Trivy vulnerability scanner (JSON for artifact)
+      uses: aquasecurity/trivy-action@v0.36.0
+      with:
+        image-ref: ghcr.io/gristgouv/grist:${{ env.GRIST_TAG }}
+        format: 'json'
+        output: 'trivy-report.json'
+        exit-code: '1'
+        vuln-type: 'os,library'
+        severity: 'CRITICAL,HIGH'
+        # On a subsequent call to the action we know trivy is already installed so can skip this
+        skip-setup-trivy: true
+
+    - name: Upload Trivy report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: trivy-report-${{ env.GRIST_TAG }}
+        path: trivy-report.json
