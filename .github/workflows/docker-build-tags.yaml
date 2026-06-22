@@ -29,22 +29,3 @@ jobs:
     with:
       docker_tag: ${{ github.ref_name }}-${{ matrix.build_env }}
       build_env: ${{ matrix.build_env }}
-
-  security-scan:
-    runs-on: ubuntu-latest
-    needs: docker-build-generic
-    # Least access: remove as much permissions as possible
-    permissions:
-      contents: none
-      packages: none
-      attestations: none
-      id-token: none
-    steps:
-    - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@v0.36.0
-      with:
-        image-ref: 'ghcr.io/gristgouv/grist:${{ github.ref_name }}'
-        format: 'table'
-        exit-code: '1'
-        vuln-type: 'os,library'
-        severity: 'CRITICAL,HIGH'

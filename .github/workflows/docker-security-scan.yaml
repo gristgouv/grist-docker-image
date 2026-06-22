@@ -1,0 +1,29 @@
+name: Security scan Docker image
+
+on:
+  registry_package:
+    types:
+      - published
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Grist image tag to scan (e.g. 1.7.15-1)'
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    # Skip cache- tags pushed by buildx and any non-grist package published in the org
+    if: github.event_name == 'workflow_dispatch' || (github.event.registry_package.name == 'grist' && !startsWith(github.event.registry_package.package_version.container_metadata.tag.name, 'cache-'))
+    steps:
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@v0.36.0
+      with:
+        image-ref: ghcr.io/gristgouv/grist:${{ inputs.image_tag || github.event.registry_package.package_version.container_metadata.tag.name }}
+        format: 'table'
+        exit-code: '1'
+        vuln-type: 'os,library'
+        severity: 'CRITICAL,HIGH'
