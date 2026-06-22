@@ -16,7 +16,6 @@ permissions:
 jobs:
   docker-build-gvisor:
     uses: ./.github/workflows/docker-build-template.yaml
-    needs: docker-build-generic
     strategy:
       matrix:
         build_env: [GVISOR]
