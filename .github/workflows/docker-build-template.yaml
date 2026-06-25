@@ -89,6 +89,7 @@ jobs:
           file: ${{ inputs.dockerfile }}
           build-args: |
             ${{ inputs.grist_version != null && format('GRIST_VERSION={0}', inputs.grist_version) || null }}
+            ${{ format('GRIST_TAG={0}', github.ref_name) || null }}
             ${{ inputs.build_env != null && format('BUILD_ENV={0}', inputs.build_env) || null }}
           # use cache from current branch, as it's most likely the closest, but also main branch for the first branch build
           cache-from: |
