@@ -29,6 +29,6 @@ RUN \
 RUN \
   strip -s out/runsc
 
-FROM ghcr.io/gristgouv/grist:1.7.15-1-DINUM
+FROM ghcr.io/gristgouv/grist:$GRIST_TAG-DINUM
 
 COPY --from=sandbox /gvisor/out/runsc /usr/bin/runsc

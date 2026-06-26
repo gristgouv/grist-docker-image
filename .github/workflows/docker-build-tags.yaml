@@ -29,3 +29,14 @@ jobs:
     with:
       docker_tag: ${{ github.ref_name }}-${{ matrix.build_env }}
       build_env: ${{ matrix.build_env }}
+
+  docker-build-gvisor:
+    uses: ./.github/workflows/docker-build-template.yaml
+    needs: docker-build-custom
+    strategy:
+      matrix:
+        build_env: [GVISOR]
+    with:
+      docker_tag: ${{ github.ref_name }}-${{ matrix.build_env }}
+      build_env: ${{ matrix.build_env }}
+      dockerfile: dockerfiles/grist/Dockerfile.gvisor
