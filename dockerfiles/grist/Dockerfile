@@ -28,12 +28,18 @@ RUN \
 FROM node:22-alpine${ALPINE_VERSION} AS prod-builder
 
 # Add python and build tools needed by gyp compilation in node modules
+# Also add bash required by install_edition and later by build:prod
 RUN \
-  apk add --no-cache python3 build-base
+  apk add --no-cache python3 build-base bash
+
+# Extensions are supplied via the `ext` build-context (and installed explicitly
+# below), so skip the `postinstall` hook.
+ENV GRIST_SKIP_EXT_AUTOSETUP=1
 
 # Install all node production dependencies.
 WORKDIR /grist
 COPY --from=sources /grist-core/package.json /grist-core/yarn.lock /grist/
+COPY --from=sources /grist-core/buildtools/install_edition.sh /grist/buildtools/install_edition.sh
 RUN \
   yarn install --prod --frozen-lockfile --verbose --network-timeout 600000
 
@@ -63,10 +69,7 @@ COPY --from=sources /grist-core/buildtools /grist/buildtools
 # Copy locales files early. During build process they are validated.
 COPY --from=sources /grist-core/static/locales /grist/static/locales
 
-# Add bash needed by build:prod
-# And then build prod
 RUN \
-  apk add --no-cache bash && \
   yarn run build:prod && \
 # We don't need them anymore, they will by copied to the final image.
   rm -rf /grist/static/locales
