@@ -1,3 +1,5 @@
+ARG GRIST_TAG
+
 # https://github.com/gristlabs/gvisor/commit/4208b8fe4e19bb7473cee8bec444c7cae6171d8b
 
 # A recipe for building the gvisor runsc sandbox.  Output is a single file.
