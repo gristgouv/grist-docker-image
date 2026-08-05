@@ -21,3 +21,8 @@ things that inputs and we don't want to change it in that case (ie. sections) */
   --grist-color-dark-grey: #8F8F8F;
 }
 /* END Form custom colors */
+
+/* Hide banner to encourage the use of MCP */
+.test-banner-element:has(.test-mcp-connect-banner-text) {
+  display: none;
+}

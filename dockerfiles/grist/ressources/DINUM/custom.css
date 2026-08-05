@@ -383,3 +383,7 @@
   }
 }
 
+/* Hide banner to encourage the use of MCP */
+.test-banner-element:has(.test-mcp-connect-banner-text) {
+  display: none;
+}
