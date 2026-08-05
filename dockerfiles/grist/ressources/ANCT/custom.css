@@ -47,5 +47,13 @@ things that inputs and we don't want to change it in that case (ie. sections) */
  * https://caniuse.com/css-nesting
  */
 .test-version-footer-popup > div:empty {
-  &, ~ div { display: none; }
+  &, ~ div {
+    display: none;
+  }
+}
+
+/* Remove the warning background theme of the version footer */
+.test-version-footer {
+  background-color: inherit !important;
+  border-top-color: var(--grist-theme-page-panels-border) !important;
 }
