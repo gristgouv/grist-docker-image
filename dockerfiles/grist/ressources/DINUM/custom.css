@@ -387,3 +387,18 @@
 .test-banner-element:has(.test-mcp-connect-banner-text) {
   display: none;
 }
+
+/* Hide elements at the right of the Grist logo (which alerts about the use of the community edition) */
+.test-version-footer>div:not(:empty) {
+  display: none;
+}
+/*
+ * Hide elements in the version popup after the divider (selected by `div:empty`) and everything that follows (hence the `~ div`)
+ * HACK: The use of div:empty is not clean…
+ *
+ * The use of nested properties are widely available now, let’s use it.
+ * https://caniuse.com/css-nesting
+ */
+.test-version-footer-popup > div:empty {
+  &, ~ div { display: none; }
+}
