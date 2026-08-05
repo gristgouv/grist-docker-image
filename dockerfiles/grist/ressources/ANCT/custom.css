@@ -15,6 +15,14 @@
   --grist-theme-secondary: #717178;
 }
 
+/*
+ * make the background of the logo white for the ANCT
+ * FIXME: why --grist-theme-logo-bg not applied in that case? upstream bug?
+ */
+.test-version-footer>div:empty {
+  background-color: var(--grist-theme-logo-bg);
+}
+
 /* note: here, we target specific things, as the dark-grey variable is used for other
 things that inputs and we don't want to change it in that case (ie. sections) */
 :root[data-grist-form] :is(input, select, textarea, label, .test-form-search-select) {
