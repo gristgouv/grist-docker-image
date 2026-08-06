@@ -15,9 +15,45 @@
   --grist-theme-secondary: #717178;
 }
 
+/*
+ * make the background of the logo white for the ANCT
+ * FIXME: why --grist-theme-logo-bg not applied in that case? upstream bug?
+ */
+.test-version-footer > div:empty {
+  background-color: var(--grist-theme-logo-bg);
+}
+
 /* note: here, we target specific things, as the dark-grey variable is used for other
 things that inputs and we don't want to change it in that case (ie. sections) */
 :root[data-grist-form] :is(input, select, textarea, label, .test-form-search-select) {
   --grist-color-dark-grey: #8F8F8F;
 }
 /* END Form custom colors */
+
+/* Hide banner to encourage the use of MCP */
+.test-banner-element:has(.test-mcp-connect-banner-text) {
+  display: none;
+}
+
+/* Hide elements at the right of the Grist logo (which alerts about the use of the community edition) */
+.test-version-footer > div:not(:empty) {
+  display: none;
+}
+/*
+ * Hide elements in the version popup after the divider (selected by `div:empty`) and everything that follows (hence the `~ div`)
+ * HACK: The use of div:empty is not clean…
+ *
+ * The use of nested properties are widely available now, let’s use it.
+ * https://caniuse.com/css-nesting
+ */
+.test-version-footer-popup > div:empty {
+  &, ~ div {
+    display: none;
+  }
+}
+
+/* Remove the warning background theme of the version footer */
+.test-version-footer {
+  background-color: inherit !important;
+  border-top-color: var(--grist-theme-page-panels-border) !important;
+}
