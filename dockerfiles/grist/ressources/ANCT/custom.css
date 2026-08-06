@@ -19,7 +19,7 @@
  * make the background of the logo white for the ANCT
  * FIXME: why --grist-theme-logo-bg not applied in that case? upstream bug?
  */
-.test-version-footer>div:empty {
+.test-version-footer > div:empty {
   background-color: var(--grist-theme-logo-bg);
 }
 
@@ -36,7 +36,7 @@ things that inputs and we don't want to change it in that case (ie. sections) */
 }
 
 /* Hide elements at the right of the Grist logo (which alerts about the use of the community edition) */
-.test-version-footer>div:not(:empty) {
+.test-version-footer > div:not(:empty) {
   display: none;
 }
 /*

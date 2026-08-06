@@ -389,7 +389,7 @@
 }
 
 /* Hide elements at the right of the Grist logo (which alerts about the use of the community edition) */
-.test-version-footer>div:not(:empty) {
+.test-version-footer > div:not(:empty) {
   display: none;
 }
 /*
