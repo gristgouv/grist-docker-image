@@ -230,6 +230,9 @@ RUN if [ "$BUILD_ENV" = "DINUM" ]; then \
   fi
 
 COPY ressources/$BUILD_ENV/ /grist/static/
+COPY ressources/common-custom.css /tmp
+RUN cat /tmp/common-custom.css >> /grist/static/custom.css && \
+    rm /tmp/common-custom.css
 
 # Set workdir to /grist to be consistent with enpoint and CMD
 # defined in lasuite/grist main images
