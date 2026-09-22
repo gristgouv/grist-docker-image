@@ -36,3 +36,8 @@
 .test-um-no-invite-email {
   display: none !important;
 }
+
+/* Remove the promotion of the full edition in the document settings */
+div:has(> .test-admin-panel-item-timezone) ~ div:has(> .test-notifications-intro) {
+  display: none;
+}
