@@ -1,5 +1,73 @@
 @import url("@gouvfr-lasuite/integration/dist/css/gaufre.css");
 
+@font-face {
+  font-family: Marianne;
+  src: url("fonts/Marianne-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  /* We apply small adjustments on the font metrics to try to match usual fonts used in Grist
+  (SF Pro on Mac, Segoe UI on Windows, Liberation Sans on Linux), as an attempt to avoid UI issues. */
+  size-adjust: 95%;
+  ascent-override: 97.1%;
+  descent-override: 24.2%;
+  line-gap-override: 0.0%;
+}
+
+@font-face {
+  font-family: Marianne;
+  src: url("fonts/Marianne-Regular_Italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  size-adjust: 95%;
+  ascent-override: 97.1%;
+  descent-override: 24.2%;
+  line-gap-override: 0.0%;
+}
+
+@font-face {
+  font-family: Marianne;
+  src: url("fonts/Marianne-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  size-adjust: 95%;
+  ascent-override: 97.1%;
+  descent-override: 24.2%;
+  line-gap-override: 0.0%;
+}
+
+@font-face {
+  font-family: Marianne;
+  src: url("fonts/Marianne-Medium_Italic.woff2") format("woff2");
+  font-weight: 500;
+  font-style: italic;
+  size-adjust: 95%;
+  ascent-override: 97.1%;
+  descent-override: 24.2%;
+  line-gap-override: 0.0%;
+}
+
+@font-face {
+  font-family: Marianne;
+  src: url("fonts/Marianne-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  size-adjust: 95%;
+  ascent-override: 97.1%;
+  descent-override: 24.2%;
+  line-gap-override: 0.0%;
+}
+
+@font-face {
+  font-family: Marianne;
+  src: url("fonts/Marianne-Bold_Italic.woff2") format("woff2");
+  font-weight: 700;
+  font-style: italic;
+  size-adjust: 95%;
+  ascent-override: 97.1%;
+  descent-override: 24.2%;
+  line-gap-override: 0.0%;
+}
+
 @layer grist-custom {
   :root {
     /* colors from the La Suite UI Kit. names match names in Figma.
@@ -56,6 +124,7 @@
     --uikit-info-550: #2F6ABB;
 
     /* common theme vars that are applied to all themes */
+    --grist-theme-font-family: Marianne,-apple-system,BlinkMacSystemFont,Liberation Sans, Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol;
     --grist-theme-very-light: var(--uikit-gray-050); /* text that is always light, whatever the current appearance (light or dark theme) */
     --grist-theme-primary: var(--uikit-brand-550); /* main accent color used mostly on interactive elements */
     --grist-theme-primary-muted: var(--uikit-brand-650); /* alternative primary color, mostly used on hover effects */
