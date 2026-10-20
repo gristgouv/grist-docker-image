@@ -67,12 +67,12 @@ COPY --from=sources /grist-core/app /grist/app
 COPY --from=sources /grist-core/stubs /grist/stubs
 COPY --from=sources /grist-core/buildtools /grist/buildtools
 # Copy locales files early. During build process they are validated.
-COPY --from=sources /grist-core/static/locales /grist/static/locales
+COPY --from=sources /grist-core/assets/locales /grist/assets/locales
 
 RUN \
   yarn run build:prod && \
 # We don't need them anymore, they will by copied to the final image.
-  rm -rf /grist/static/locales
+  rm -rf /grist/assets/locales
 
 ################################################################################
 ## Python collection stage
@@ -127,6 +127,7 @@ COPY --from=builder /node_modules /node_modules
 COPY --from=prod-builder /grist/node_modules /grist/node_modules
 COPY --from=builder /grist/_build /grist/_build
 COPY --from=builder /grist/static /grist/static-built
+COPY --from=builder /grist/assets /grist/assets
 
 # Copy python3 files.
 COPY --from=collector-py3 /usr/local/bin/python3.11 /usr/bin/python3.11
