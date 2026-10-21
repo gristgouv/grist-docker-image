@@ -1,5 +1,5 @@
-ARG GRIST_VERSION=v1.7.21
-ARG ALPINE_VERSION=3.22
+ARG GRIST_VERSION=v1.7.19
+ARG ALPINE_VERSION=3.24
 
 ################################################################################
 ## The Grist source can be extended. This is a stub that can be overridden
