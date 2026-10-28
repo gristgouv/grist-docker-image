@@ -1,4 +1,4 @@
-ARG GRIST_VERSION=v1.7.19
+ARG GRIST_VERSION=v1.7.21
 ARG ALPINE_VERSION=3.24
 
 ################################################################################
@@ -67,12 +67,12 @@ COPY --from=sources /grist-core/app /grist/app
 COPY --from=sources /grist-core/stubs /grist/stubs
 COPY --from=sources /grist-core/buildtools /grist/buildtools
 # Copy locales files early. During build process they are validated.
-COPY --from=sources /grist-core/static/locales /grist/static/locales
+COPY --from=sources /grist-core/assets /grist/assets
 
 RUN \
   yarn run build:prod && \
 # We don't need them anymore, they will by copied to the final image.
-  rm -rf /grist/static/locales
+  rm -rf /grist/assets
 
 ################################################################################
 ## Python collection stage
@@ -148,6 +148,7 @@ COPY --from=sources /grist-core/bower_components /grist/bower_components
 COPY --from=sources /grist-core/sandbox /grist/sandbox
 COPY --from=sources /grist-core/plugins /grist/plugins
 COPY --from=sources /grist-core/static /grist/static
+COPY --from=sources /grist-core/assets /grist/assets
 
 # Finalize static directory
 RUN \
