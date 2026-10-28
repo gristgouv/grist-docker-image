@@ -200,7 +200,7 @@ ENV \
   GRIST_SESSION_COOKIE=grist_core \
   GVISOR_FLAGS="-unprivileged -ignore-cgroups" \
   GRIST_SANDBOX_FLAVOR=gvisor \
-  NODE_OPTIONS="--no-deprecation" \
+  NODE_OPTIONS="--no-deprecation --disable-proto=delete" \
   NODE_ENV=production \
   TYPEORM_DATABASE=/persist/home.sqlite3
 
