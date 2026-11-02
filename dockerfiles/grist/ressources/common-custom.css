@@ -41,3 +41,8 @@
 div:has(> .test-admin-panel-item-timezone) ~ div:has(> .test-notifications-intro) {
   display: none;
 }
+
+/* For now, hide the custom widget creator button */
+.test-wselect-type:has(> div[style*='--icon-Code']) {
+  display: none;
+}
