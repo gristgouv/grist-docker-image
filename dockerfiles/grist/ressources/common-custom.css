@@ -46,3 +46,103 @@ div:has(> .test-admin-panel-item-timezone) ~ div:has(> .test-notifications-intro
 .test-wselect-type:has(> div[style*='--icon-Code']) {
   display: none;
 }
+
+/* START logo beta at grist ressources position */
+[style^="background-image: var(--icon-GristLogo)"] {
+  width: 48px !important;
+  height: 48px !important;
+}
+/* END logo beta at grist ressources position */
+
+
+/* START lasuite footer + help menu (shared by DINUM and ANCT) */
+.test-dm-tos {
+  /* TOS is replaced by custom links in the help menu */
+  display: none !important;
+}
+
+.lasuite-footer {
+  display: flex !important;
+  align-items: center !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 80px !important;
+  right: 0 !important;
+  padding: 8px 16px !important;
+  padding-left: 0 !important;
+  margin: 0 !important;
+  height: 65px !important;
+  background-color: inherit !important;
+  border-top-color: var(--grist-theme-page-panels-border) !important;
+}
+
+.lasuite-help {
+  position: relative !important;
+  margin-left: auto !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.lasuite-help-btn {
+  background: none !important;
+  border: none !important;
+  padding: .5rem !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+  position: relative !important;
+  top: 1px !important;
+  color: var(--grist-theme-text-light) !important;
+  border-radius: 3px !important;
+  cursor: pointer !important;
+}
+.lasuite-help-btn:hover {
+  background-color: var(--grist-theme-left-panel-page-hover-bg) !important;
+}
+
+#lasuite-help-menu {
+  position: absolute !important;
+  bottom: calc(100% + 8px) !important;
+  left: 0 !important;
+  min-width: 160px !important;
+  max-width: 400px !important;
+  margin: 0 !important;
+  padding: 8px 0 16px 0 !important;
+  background-color: var(--grist-theme-menu-bg) !important;
+  box-shadow: 0 2px 20px 0 var(--grist-theme-menu-shadow) !important;
+  z-index: var(--grist-menu-z-index, 999) !important;
+  --weaseljs-selected-background-color: var(--grist-theme-menu-item-selected-bg);
+  --weaseljs-menu-item-padding: 8px 24px;
+}
+
+#lasuite-help-menu > ul {
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+
+.lasuite-help-menu-separator {
+  background-color: var(--grist-theme-menu-border);
+  margin: 8px 0;
+  height: 1px;
+  width: 100%;
+}
+
+#lasuite-help-menu li > :is(a, button) {
+  display: block !important;
+  background-color: transparent !important;
+  border: none !important;
+  width: 100% !important;
+  padding: var(--weaseljs-menu-item-padding, 8px 24px) !important;
+  color: var(--grist-theme-menu-item-fg) !important;
+  text-align: left !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+}
+
+#lasuite-help-menu li > :is(a, button):is(:hover, :focus) {
+  background-color: var(--weaseljs-selected-background-color, var(--grist-theme-menu-item-selected-bg)) !important;
+  color: var(--grist-theme-menu-item-selected-fg) !important;
+  outline: none !important;
+}
+/* END lasuite footer + help menu */

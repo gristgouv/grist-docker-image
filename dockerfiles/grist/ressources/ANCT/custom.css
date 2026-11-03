@@ -29,4 +29,3 @@ things that inputs and we don't want to change it in that case (ie. sections) */
 .test-version-footer > div:empty {
   background-color: var(--grist-theme-logo-bg);
 }
-

@@ -181,13 +181,6 @@
   }
   /* END logo beta at user PP position*/
 
-  /* START logo beta at grist ressources position */
-  [style^="background-image: var(--icon-GristLogo)"] {
-    width: 48px !important;
-    height: 48px !important;
-  }
-  /* END logo beta at grist ressources position */
-
   /* START gaufre changes */
   /* We use gaufre v1, which uses the old la suite colors and design.
   Until we migrate to gaufre v2, we need to override things. */
@@ -195,6 +188,7 @@
     /* adapt button color to the custom primary color that changes with the current theme */
     color: var(--grist-theme-primary) !important;
     box-shadow: none !important;
+    border-radius: 3px !important;
   }
   /* replace the behave hexagon icon with a square/dots icon (match new gaufre design) */
   .lasuite-gaufre-btn--vanilla::before {
@@ -204,6 +198,15 @@
     --icon-size: 1.5rem !important;
   }
   /* END gaufre changes */
+
+  /* START lasuite support popup (DINUM-only) */
+  /* When our Grist-specific class is applied to the popup, we know it's actually ready to be shown.
+   * Not doing this shows the popup at the wrong positioning for a tiny moment, because we re-position it on open.
+   */
+  #lasuite-widget-support-root:not(.clipboard_group_focus) {
+    visibility: hidden !important;
+  }
+  /* END lasuite support popup */
 
   /* START Custom toggle switch colors */
   /* When in a table or card, the toggle switch has particular styling rules to handle potential user-selected color,
