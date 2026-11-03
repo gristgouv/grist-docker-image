@@ -83,7 +83,7 @@ div:has(> .test-admin-panel-item-timezone) ~ div:has(> .test-notifications-intro
   align-items: center !important;
 }
 
-.lasuite-help-btn {
+.lasuite-custom-btn {
   background: none !important;
   border: none !important;
   padding: .5rem !important;
@@ -95,7 +95,7 @@ div:has(> .test-admin-panel-item-timezone) ~ div:has(> .test-notifications-intro
   border-radius: 3px !important;
   cursor: pointer !important;
 }
-.lasuite-help-btn:hover {
+.lasuite-custom-btn:hover {
   background-color: var(--grist-theme-left-panel-page-hover-bg) !important;
 }
 
