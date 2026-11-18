@@ -200,3 +200,4 @@ index f39eba9095f..b20055fecf0 100644
 +
          it("can release assignments", async function() {
            const workers = new DocWorkerMap([cli]);
+ 
