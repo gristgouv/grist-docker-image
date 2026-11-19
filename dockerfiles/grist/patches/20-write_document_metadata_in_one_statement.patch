@@ -1,0 +1,72 @@
+From c2753664cc8f5dc57838dd8e1a76f4cf8960716c Mon Sep 17 00:00:00 2001
+From: Ryan Lahfa <ryan.lahfa.ext@numerique.gouv.fr>
+Date: Wed, 18 Nov 2026 16:48:02 +0100
+Subject: [PATCH 1/2] Write document metadata in one statement
+
+---
+ app/gen-server/lib/homedb/HomeDBManager.ts | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/app/gen-server/lib/homedb/HomeDBManager.ts b/app/gen-server/lib/homedb/HomeDBManager.ts
+index 19fa609a9e..2c06dc1fc1 100644
+--- a/app/gen-server/lib/homedb/HomeDBManager.ts
++++ b/app/gen-server/lib/homedb/HomeDBManager.ts
+@@ -2931,6 +2931,25 @@ export class HomeDBManager implements HomeDBAuth {
+     }
+     const docIds = Object.keys(docUpdateMap);
+     return this._connection.transaction(async (manager) => {
++      if (this._dbType === "postgres") {
++        await manager.query(
++          `UPDATE "docs" AS d
++             SET "updated_at" = COALESCE(m."updated_at", d."updated_at"),
++                 "usage" = CASE WHEN m."has_usage" THEN m."usage" ELSE d."usage" END
++           FROM (
++             SELECT * FROM unnest($1::varchar[], $2::timestamptz[], $3::json[], $4::boolean[])
++               AS t("id", "updated_at", "usage", "has_usage")
++           ) AS m
++           WHERE d."id" = m."id"`,
++          [
++            docIds,
++            docIds.map(id => docUpdateMap[id].updatedAt ?? null),
++            docIds.map(id => (docUpdateMap[id].usage === undefined ?
++              null : JSON.stringify(docUpdateMap[id].usage))),
++            docIds.map(id => docUpdateMap[id].usage !== undefined),
++          ]);
++        return { status: 200 };
++      }
+       const updateTasks = docIds.map((docId) => {
+         return manager.createQueryBuilder()
+           .update(Document)
+
+From 99f4dab9c3ab6ffde0bda36b398bb9ccda61fca0 Mon Sep 17 00:00:00 2001
+From: Ryan Lahfa <ryan.lahfa.ext@numerique.gouv.fr>
+Date: Wed, 18 Nov 2026 16:48:02 +0100
+Subject: [PATCH 2/2] Spread the metadata push across the fleet
+
+---
+ app/server/lib/HostedMetadataManager.ts | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/app/server/lib/HostedMetadataManager.ts b/app/server/lib/HostedMetadataManager.ts
+index 6839c03b6d..6d83002d7d 100644
+--- a/app/server/lib/HostedMetadataManager.ts
++++ b/app/server/lib/HostedMetadataManager.ts
+@@ -1,6 +1,8 @@
+ import { DocumentMetadata } from "app/gen-server/lib/homedb/HomeDBManager";
+ import log from "app/server/lib/log";
+ 
++const PUSH_JITTER_FRACTION = 0.15;
++
+ // Callback that persists the updated metadata to storage for each document.
+ export type SaveDocsMetadataFunc = (metadata: { [docId: string]: DocumentMetadata }) => Promise<any>;
+ 
+@@ -123,6 +125,8 @@ export class HostedMetadataManager {
+   private _schedulePush(delayMs?: number): void {
+     if (delayMs === undefined) {
+       delayMs = Math.round(this._minPushDelayMs - (Date.now() - this._lastPushTime));
++      const jitter = Math.round(delayMs * PUSH_JITTER_FRACTION);
++      if (jitter > 0) { delayMs += Math.round((Math.random() * 2 - 1) * jitter); }
+     }
+     if (this._timeout) { clearTimeout(this._timeout); }
+     this._timeout = setTimeout(() => this._update(), delayMs < 0 ? 0 : delayMs);
+
