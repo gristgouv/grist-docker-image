@@ -1,0 +1,249 @@
+From 65a19f5249bdd1576ae5921b8f095bb00504222a Mon Sep 17 00:00:00 2001
+From: Ryan Lahfa <ryan.lahfa.ext@numerique.gouv.fr>
+Date: Fri, 20 Nov 2026 10:42:01 +0100
+Subject: [PATCH 1/2] Survive a redis failure while opening the webhook queue
+
+---
+ app/server/lib/WebhookQueue.ts | 11 ++++++++---
+ app/server/lib/redisClient.ts  |  7 +++++++
+ test/server/lib/redisClient.ts | 21 +++++++++++++++++++++
+ 3 files changed, 36 insertions(+), 3 deletions(-)
+ create mode 100644 app/server/lib/redisClient.ts
+ create mode 100644 test/server/lib/redisClient.ts
+
+diff --git a/app/server/lib/WebhookQueue.ts b/app/server/lib/WebhookQueue.ts
+index 507edc730d3..62ddfe6acc7 100644
+--- a/app/server/lib/WebhookQueue.ts
++++ b/app/server/lib/WebhookQueue.ts
+@@ -17,6 +17,7 @@ import { decodeObject } from "app/plugin/objtypes";
+ import { ActiveDoc } from "app/server/lib/ActiveDoc";
+ import log from "app/server/lib/log";
+ import { fetchUntrustedWithAgent } from "app/server/lib/ProxyAgent";
++import { createRedisClient } from "app/server/lib/redisClient";
+ import { delayAbort } from "app/server/lib/serverUtils";
+ import { isWebhookUrlAllowed } from "app/server/lib/Triggers";
+ import { LogSanitizer } from "app/server/utils/LogSanitizer";
+@@ -24,7 +25,7 @@ import { LogSanitizer } from "app/server/utils/LogSanitizer";
+ import { promisifyAll } from "bluebird";
+ import * as _ from "lodash";
+ import { AbortController, AbortSignal } from "node-abort-controller";
+-import { createClient, Multi, RedisClient } from "redis";
++import { Multi, RedisClient } from "redis";
+ 
+ import type { IDocNotificationManager, PendingItem } from "app/server/lib/IDocNotificationManager";
+ 
+@@ -155,7 +156,7 @@ export class WebhookQueue implements ActionQueue<WebhookActionPayload> {
+     if (redisUrl) {
+       // We create a transient client just for this purpose because it makes it easy
+       // to quit it afterwards and avoid keeping a client open for documents without triggers.
+-      this._getRedisQueuePromise = this._getRedisQueue(createClient(redisUrl));
++      this._getRedisQueuePromise = this._getRedisQueue(this._createRedisClient(redisUrl));
+     }
+   }
+ 
+@@ -357,6 +358,10 @@ export class WebhookQueue implements ActionQueue<WebhookActionPayload> {
+     return { triggerName: "", tableName: "" };
+   }
+ 
++  protected _createRedisClient(redisUrl: string) {
++    return createRedisClient(redisUrl, err => this._log(`redis client error: ${err}`, { level: "warn" }));
++  }
++
+   private _log(msg: string, { level = "info", ...meta }: any = {}) {
+     log.origLog(level, "WebhookQueue: " + msg, {
+       ...meta,
+@@ -555,7 +560,7 @@ export class WebhookQueue implements ActionQueue<WebhookActionPayload> {
+     const redisUrl = process.env.REDIS_URL;
+     if (redisUrl) {
+       this._log("Creating redis client");
+-      this._redisClientField = createClient(redisUrl);
++      this._redisClientField = this._createRedisClient(redisUrl);
+     }
+     return this._redisClientField;
+   }
+diff --git a/app/server/lib/redisClient.ts b/app/server/lib/redisClient.ts
+new file mode 100644
+index 00000000000..074a73aedde
+--- /dev/null
++++ b/app/server/lib/redisClient.ts
+@@ -0,0 +1,7 @@
++import { createClient, RedisClient } from "redis";
++
++export function createRedisClient(url: string, onError: (err: Error) => void): RedisClient {
++  const client = createClient(url);
++  client.on("error", onError);
++  return client;
++}
+diff --git a/test/server/lib/redisClient.ts b/test/server/lib/redisClient.ts
+new file mode 100644
+index 00000000000..68f70f3b506
+--- /dev/null
++++ b/test/server/lib/redisClient.ts
+@@ -0,0 +1,21 @@
++import { createRedisClient } from "app/server/lib/redisClient";
++
++import { assert } from "chai";
++import sinon from "sinon";
++
++describe("redisClient", function() {
++  describe("createRedisClient", function() {
++    it("reports a connection error rather than throwing it", function() {
++      const onError = sinon.spy();
++      const client = createRedisClient("redis://127.0.0.1:1/0", onError) as any;
++      try {
++        const err = new Error("getaddrinfo EAI_AGAIN redis-grist");
++        assert.doesNotThrow(() => client.emit("error", err));
++        assert.equal(client.listenerCount("error"), 1);
++        assert.deepEqual(onError.args, [[err]]);
++      } finally {
++        client.end(true);
++      }
++    });
++  });
++});
+
+From a32761f1d8068ffceb2df8c9888cdae38f90b0d6 Mon Sep 17 00:00:00 2001
+From: Ryan Lahfa <ryan.lahfa.ext@numerique.gouv.fr>
+Date: Fri, 20 Nov 2026 10:43:14 +0100
+Subject: [PATCH 2/2] Make a failed webhook queue restore retryable
+
+---
+ app/server/lib/WebhookQueue.ts     | 26 +++++++----
+ stubs/app/server/declarations.d.ts |  1 +
+ test/server/lib/WebhookQueue.ts    | 70 ++++++++++++++++++++++++++++++
+ 3 files changed, 89 insertions(+), 8 deletions(-)
+ create mode 100644 test/server/lib/WebhookQueue.ts
+
+diff --git a/app/server/lib/WebhookQueue.ts b/app/server/lib/WebhookQueue.ts
+index 62ddfe6acc7..5dd854428bc 100644
+--- a/app/server/lib/WebhookQueue.ts
++++ b/app/server/lib/WebhookQueue.ts
+@@ -157,6 +157,7 @@ export class WebhookQueue implements ActionQueue<WebhookActionPayload> {
+       // We create a transient client just for this purpose because it makes it easy
+       // to quit it afterwards and avoid keeping a client open for documents without triggers.
+       this._getRedisQueuePromise = this._getRedisQueue(this._createRedisClient(redisUrl));
++      this._getRedisQueuePromise.catch(() => { this._getRedisQueuePromise = undefined; });
+     }
+   }
+ 
+@@ -387,14 +388,23 @@ export class WebhookQueue implements ActionQueue<WebhookActionPayload> {
+   }
+ 
+   private async _getRedisQueue(redisClient: RedisClient) {
+-    const strings = await redisClient.lrangeAsync(this._redisQueueKey, 0, -1);
+-    if (strings.length) {
+-      this._log("Webhook events found on redis queue", { numEvents: strings.length });
+-      const events = strings.map(s => JSON.parse(s));
+-      this._webHookEventQueue.unshift(...events);
+-      this._startSendLoop();
+-    }
+-    await redisClient.quitAsync();
++    try {
++      const strings = await redisClient.lrangeAsync(this._redisQueueKey, 0, -1);
++      if (strings.length) {
++        this._log("Webhook events found on redis queue", { numEvents: strings.length });
++        const events = strings.map(s => JSON.parse(s));
++        this._webHookEventQueue.unshift(...events);
++        this._startSendLoop();
++      }
++    } finally {
++      if (redisClient.connected) {
++        await redisClient.quitAsync().catch(
++          e => this._log("Error quitting redis: " + e, { level: "warn" }),
++        );
++      } else {
++        redisClient.end(true);
++      }
++    }
+   }
+ 
+   private async _getWebHook(id: string): Promise<WebHookSecret | undefined> {
+diff --git a/stubs/app/server/declarations.d.ts b/stubs/app/server/declarations.d.ts
+index 979cbb12eab..f2b4e23c2d5 100644
+--- a/stubs/app/server/declarations.d.ts
++++ b/stubs/app/server/declarations.d.ts
+@@ -50,6 +50,7 @@ declare module "redis" {
+     public keysAsync(pattern: string): Promise<string[]>;
+     public multi(): Multi;
+     public quitAsync(): Promise<void>;
++    public end(flush?: boolean): void;
+     public saddAsync(key: string, val: string): Promise<"OK">;
+     public scardAsync(key: string): Promise<number>;
+     public selectAsync(db: number): Promise<void>;
+diff --git a/test/server/lib/WebhookQueue.ts b/test/server/lib/WebhookQueue.ts
+new file mode 100644
+index 00000000000..b2d64e72f9e
+--- /dev/null
++++ b/test/server/lib/WebhookQueue.ts
+@@ -0,0 +1,70 @@
++import { ActiveDoc } from "app/server/lib/ActiveDoc";
++import { WebhookQueue } from "app/server/lib/WebhookQueue";
++
++import { assert } from "chai";
++import sinon from "sinon";
++
++let clientForQueue: any;
++
++class TestWebhookQueue extends WebhookQueue {
++  protected _createRedisClient(): any {
++    return clientForQueue;
++  }
++}
++
++describe("WebhookQueue", function() {
++  let originalRedisUrl: string | undefined;
++
++  beforeEach(function() {
++    originalRedisUrl = process.env.REDIS_URL;
++    process.env.REDIS_URL = "redis://127.0.0.1:1/0";
++  });
++
++  afterEach(function() {
++    if (originalRedisUrl === undefined) {
++      delete process.env.REDIS_URL;
++    } else {
++      process.env.REDIS_URL = originalRedisUrl;
++    }
++    clientForQueue = undefined;
++  });
++
++  describe("restoring the backup queue", function() {
++    it("makes a failed restore retryable, and quits the client it opened", async function() {
++      const client = {
++        connected: true,
++        lrangeAsync: sinon.stub().rejects(new Error("connection lost")),
++        quitAsync: sinon.stub().resolves("OK"),
++        end: sinon.stub(),
++        delAsync: sinon.stub().resolves(0),
++      };
++      clientForQueue = client;
++      const queue = new TestWebhookQueue({ docName: "doc1" } as unknown as ActiveDoc);
++
++      await assert.isRejected((queue as any)._getRedisQueuePromise, /connection lost/);
++
++      assert.isUndefined((queue as any)._getRedisQueuePromise);
++      assert.isTrue(client.quitAsync.calledOnce);
++      assert.isTrue(client.end.notCalled);
++      await queue.clearWebhookQueue();
++    });
++
++    it("ends a client that never connected instead of waiting for a quit", async function() {
++      const client = {
++        connected: false,
++        lrangeAsync: sinon.stub().rejects(new Error("getaddrinfo EAI_AGAIN")),
++        quitAsync: sinon.stub().resolves("OK"),
++        end: sinon.stub(),
++        delAsync: sinon.stub().resolves(0),
++      };
++      clientForQueue = client;
++      const queue = new TestWebhookQueue({ docName: "doc1" } as unknown as ActiveDoc);
++
++      await assert.isRejected((queue as any)._getRedisQueuePromise, /EAI_AGAIN/);
++
++      assert.isTrue(client.end.calledOnceWith(true));
++      assert.isTrue(client.quitAsync.notCalled);
++      assert.isUndefined((queue as any)._getRedisQueuePromise);
++    });
++  });
++});
+
