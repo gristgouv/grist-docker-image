@@ -1,0 +1,159 @@
+From bca07f77c449d43c9d3d5b0617b0814ee2ce0bec Mon Sep 17 00:00:00 2001
+From: Ryan Lahfa <ryan.lahfa.ext@numerique.gouv.fr>
+Date: Fri, 20 Nov 2026 10:45:00 +0100
+Subject: [PATCH 1/2] Stop reporting worker load before withdrawing the worker
+
+---
+ app/server/lib/FlexServer.ts | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/app/server/lib/FlexServer.ts b/app/server/lib/FlexServer.ts
+index 44c6ebc0c5..e6124e8966 100644
+--- a/app/server/lib/FlexServer.ts
++++ b/app/server/lib/FlexServer.ts
+@@ -2547,9 +2547,6 @@ export class FlexServer implements GristServer {
+ 
+   private async _removeSelfAsWorker(workers: IDocWorkerMap, docWorkerId: string) {
+     this._healthy = false;
+-    // Deregistering matters more than a last report, so a failed one must not stop it.
+-    await this._docWorkerLoadTracker?.stopAndFinish().catch(
+-      err => log.warn(`DocWorker ${docWorkerId} could not finish reporting itself: ${err}`));
+     await workers.removeWorker(docWorkerId);
+     if (process.env.GRIST_ROUTER_URL) {
+       await axios.get(process.env.GRIST_ROUTER_URL,
+@@ -2576,6 +2573,9 @@ export class FlexServer implements GristServer {
+ 
+     const workers = this._docWorkerMap;
+ 
++    await this._docWorkerLoadTracker?.stopAndFinish().catch(
++      err => log.warn(`DocWorker ${this.worker.id} could not finish reporting itself: ${err}`));
++
+     // Pick up the pace on saving documents.
+     this._storageManager.prepareToCloseStorage();
+ 
+
+From d87e82ed94d7e5636277199e3cddc8e4dbdd5617 Mon Sep 17 00:00:00 2001
+From: Ryan Lahfa <ryan.lahfa.ext@numerique.gouv.fr>
+Date: Fri, 20 Nov 2026 10:46:52 +0100
+Subject: [PATCH 2/2] Put a doc worker back in the pool when it has been
+ dropped from it
+
+---
+ app/server/lib/DocWorkerLoadTracker.ts  | 11 +++++++
+ test/gen-server/lib/DocWorkerMap.ts     | 14 +++++++++
+ test/server/lib/DocWorkerLoadTracker.ts | 38 +++++++++++++++++++++++++
+ 3 files changed, 63 insertions(+)
+
+diff --git a/app/server/lib/DocWorkerLoadTracker.ts b/app/server/lib/DocWorkerLoadTracker.ts
+index 5a2fb97f2d..de74440ab9 100644
+--- a/app/server/lib/DocWorkerLoadTracker.ts
++++ b/app/server/lib/DocWorkerLoadTracker.ts
+@@ -193,6 +193,8 @@ export class DocWorkerLoadTracker {
+   }
+ 
+   private async _updateLoad() {
++    await this._restoreRegistration();
++
+     let load: number;
+     try {
+       load = await this.getLoad();
+@@ -204,4 +206,13 @@ export class DocWorkerLoadTracker {
+     }
+     await this._docWorkerMap.setWorkerLoad(this._docWorkerInfo, load);
+   }
++
++  private async _restoreRegistration() {
++    if (await this._docWorkerMap.isWorkerRegistered(this._docWorkerInfo)) {
++      return;
++    }
++    this._log.warn(null, `worker ${this._docWorkerInfo.id} is no longer in the worker pool`);
++    await this._docWorkerMap.addWorker(this._docWorkerInfo);
++    await this._docWorkerMap.setWorkerAvailability(this._docWorkerInfo.id, true);
++  }
+ }
+diff --git a/test/gen-server/lib/DocWorkerMap.ts b/test/gen-server/lib/DocWorkerMap.ts
+index f39eba9095..fa54c50d0c 100644
+--- a/test/gen-server/lib/DocWorkerMap.ts
++++ b/test/gen-server/lib/DocWorkerMap.ts
+@@ -841,6 +841,20 @@ describe("DocWorkerMap", function() {
+       assert.isFalse((await workers.getRegisteredWorkers())[0].alive);
+     });
+ 
++    it("cannot be made available again after being dropped, unless it is added back", async function() {
++      await workers.addWorker(workerA);
++      await workers.setWorkerAvailability(workerA.id, true);
++      await workers.removeWorker(workerA.id);
++
++      assert.isFalse(await workers.isWorkerRegistered(workerA));
++      await assert.isRejected(
++        workers.setWorkerAvailability(workerA.id, true), /no doc worker contact info/);
++
++      await workers.addWorker(workerA);
++      await workers.setWorkerAvailability(workerA.id, true);
++      assert.isTrue(await workers.isWorkerRegistered(workerA));
++    });
++
+     it("reports a worker in the group its availability sits in", async function() {
+       await workers.addWorker({ ...workerA, group: "chosen" });
+       await workers.setWorkerAvailability(workerA.id, true);
+diff --git a/test/server/lib/DocWorkerLoadTracker.ts b/test/server/lib/DocWorkerLoadTracker.ts
+index 6d87215bf6..c955d26eec 100644
+--- a/test/server/lib/DocWorkerLoadTracker.ts
++++ b/test/server/lib/DocWorkerLoadTracker.ts
+@@ -134,11 +134,17 @@ describe("DocWorkerLoadTracker", function() {
+     let getLoadStub: sinon.SinonStub;
+     let setWorkerLoadStub: sinon.SinonStub;
+     let recordWorkerAliveStub: sinon.SinonStub;
++    let isWorkerRegisteredStub: sinon.SinonStub;
++    let addWorkerStub: sinon.SinonStub;
++    let setWorkerAvailabilityStub: sinon.SinonStub;
+     let logErrorStub: sinon.SinonStub;
+     beforeEach(function() {
+       getLoadStub = sandbox.stub(docWorkerLoadTracker, "getLoad").resolves(0);
+       setWorkerLoadStub = sandbox.stub(docWorkerMap, "setWorkerLoad").resolves(undefined);
+       recordWorkerAliveStub = sandbox.stub(docWorkerMap, "recordWorkerAlive").resolves(undefined);
++      isWorkerRegisteredStub = sandbox.stub(docWorkerMap, "isWorkerRegistered").resolves(true);
++      addWorkerStub = sandbox.stub(docWorkerMap, "addWorker").resolves(undefined);
++      setWorkerAvailabilityStub = sandbox.stub(docWorkerMap, "setWorkerAvailability").resolves(undefined);
+       logErrorStub = sandbox.stub(docWorkerLoadTracker["_log"], "error").returns(undefined);
+     });
+ 
+@@ -166,5 +172,37 @@ describe("DocWorkerLoadTracker", function() {
+       // not read as one that has stopped, which is an invitation to deregister it.
+       assert.deepEqual(recordWorkerAliveStub.firstCall?.args, [docWorkerInfoMap.id]);
+     });
++
++    it("should put a worker that has left the worker pool back into it", async function() {
++      isWorkerRegisteredStub.resolves(false);
++
++      await triggerTimer();
++
++      assert.deepEqual(addWorkerStub.firstCall?.args, [docWorkerInfoMap]);
++      assert.deepEqual(setWorkerAvailabilityStub.firstCall?.args, [docWorkerInfoMap.id, true]);
++      assert.equal(setWorkerLoadStub.callCount, 1);
++      sinon.assert.callOrder(addWorkerStub, setWorkerAvailabilityStub, setWorkerLoadStub);
++    });
++
++    it("should leave a worker that is still in the worker pool alone", async function() {
++      await triggerTimer();
++
++      assert.equal(addWorkerStub.callCount, 0);
++      assert.equal(setWorkerAvailabilityStub.callCount, 0);
++      assert.equal(setWorkerLoadStub.callCount, 1);
++    });
++
++    it("should put a worker back even when it cannot measure its load", async function() {
++      isWorkerRegisteredStub.resolves(false);
++      const error = new Error("an error");
++      getLoadStub.rejects(error);
++
++      await triggerTimer();
++
++      assert.equal(addWorkerStub.callCount, 1);
++      assert.equal(setWorkerAvailabilityStub.callCount, 1);
++      assert.equal(setWorkerLoadStub.callCount, 0);
++      assert.deepEqual(recordWorkerAliveStub.firstCall?.args, [docWorkerInfoMap.id]);
++    });
+   });
+ });
+
